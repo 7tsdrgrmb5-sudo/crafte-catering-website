@@ -1,20 +1,38 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 420" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 360" role="img" aria-labelledby="title desc">
 <title id="title">CraftE Catering LLC</title>
-<desc id="desc">Gold CC monogram and CraftE Catering wordmark on a transparent background.</desc>
+<desc id="desc">Wide metallic gold CraftE Catering logo with interlocking CC monogram, martini detail, establishment year and tagline.</desc>
 <defs>
   <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
-    <stop offset="0" stop-color="#9f6e1f"/>
-    <stop offset=".28" stop-color="#f2d17f"/>
-    <stop offset=".55" stop-color="#c18b2e"/>
-    <stop offset=".78" stop-color="#ffe2a0"/>
-    <stop offset="1" stop-color="#9b681c"/>
+    <stop offset="0" stop-color="#7f4e12"/>
+    <stop offset=".18" stop-color="#d89931"/>
+    <stop offset=".39" stop-color="#ffe08a"/>
+    <stop offset=".52" stop-color="#fff0b5"/>
+    <stop offset=".68" stop-color="#d2932f"/>
+    <stop offset=".86" stop-color="#ffd56d"/>
+    <stop offset="1" stop-color="#8b5718"/>
   </linearGradient>
+  <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+    <feGaussianBlur stdDeviation="3.5" result="blur"/>
+    <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
 </defs>
-<g fill="none" stroke="url(#gold)" stroke-width="18" stroke-linecap="round">
-  <path d="M365 65c-92-51-220 15-220 125s128 176 220 125"/>
-  <path d="M470 65c-92-51-220 15-220 125s128 176 220 125"/>
+<g filter="url(#glow)">
+  <g fill="none" stroke="url(#gold)" stroke-width="16" stroke-linecap="round">
+    <path d="M548 38c-65-35-151 12-151 88s86 123 151 88"/>
+    <path d="M622 38c-65-35-151 12-151 88s86 123 151 88"/>
+  </g>
+  <text x="558" y="244" text-anchor="end" fill="url(#gold)" font-family="Arial, Helvetica, sans-serif" font-size="86" font-weight="300" letter-spacing="-4">CraftE Ca</text>
+  <g transform="translate(574 166)" stroke="url(#gold)" fill="none" stroke-width="6" stroke-linejoin="round">
+    <path d="M0 8h82l-41 44z"/>
+    <path d="M41 52v52"/>
+    <path d="M20 104h42"/>
+    <circle cx="68" cy="-2" r="7" fill="url(#gold)" stroke="none"/>
+    <path d="M64 -7l17-24"/>
+    <circle cx="83" cy="-34" r="4" fill="url(#gold)" stroke="none"/>
+  </g>
+  <text x="668" y="244" fill="url(#gold)" font-family="Arial, Helvetica, sans-serif" font-size="86" font-weight="300" letter-spacing="-4">ering</text>
+  <text x="910" y="282" fill="#e9c66f" font-family="Arial, Helvetica, sans-serif" font-size="24" letter-spacing="7">EST. 2023</text>
+  <line x1="332" y1="292" x2="868" y2="292" stroke="url(#gold)" stroke-width="2"/>
+  <text x="600" y="332" text-anchor="middle" fill="#f5f0e8" font-family="Arial, Helvetica, sans-serif" font-size="22" letter-spacing="9">CRAFTING MOMENTS, ONE SIP AT A TIME.</text>
 </g>
-<text x="455" y="210" text-anchor="middle" fill="url(#gold)" font-family="Georgia, 'Times New Roman', serif" font-size="82" letter-spacing="2">CraftE Catering</text>
-<line x1="260" y1="250" x2="650" y2="250" stroke="#c99238" stroke-width="2"/>
-<text x="455" y="292" text-anchor="middle" fill="#d9b66a" font-family="Arial, Helvetica, sans-serif" font-size="24" letter-spacing="8">LLC • EST. 2023</text>
 </svg>
