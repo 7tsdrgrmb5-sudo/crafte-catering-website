@@ -3,6 +3,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.95.0';
 const SUPABASE_URL = 'https://ozjctdmdwoutsebkjcpn.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_tERnQU70mt-6imXPumOiUg_EDTYsQpH';
 const SITE_BASE = location.origin + location.pathname.replace(/\/crm\.html.*$/, '');
+const CRM_URL = SITE_BASE + '/crm.html';
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const $ = id => document.getElementById(id);
@@ -41,10 +42,26 @@ $('signUpForm').addEventListener('submit',async e=>{
   e.preventDefault(); setStatus('authStatus','Creating your account…');
   const fd=new FormData(e.currentTarget);
   localStorage.setItem('crafte_staff_display_name',String(fd.get('display_name')||''));
-  const {data,error}=await supabase.auth.signUp({email:fd.get('email'),password:fd.get('password')});
+  const {data,error}=await supabase.auth.signUp({
+    email:fd.get('email'),
+    password:fd.get('password'),
+    options:{emailRedirectTo:CRM_URL}
+  });
   if(error){setStatus('authStatus',error.message);return}
   if(data.session){await boot();return}
   setStatus('authStatus','Account created. Check your email to confirm it, then return here and sign in.');
+});
+
+$('resendConfirmation').addEventListener('click',async ()=>{
+  const email=$('signInForm').querySelector('[name="email"]').value.trim();
+  if(!email){setStatus('authStatus','Enter your email first, then click resend.');return}
+  setStatus('authStatus','Sending a new confirmation email…');
+  const {error}=await supabase.auth.resend({
+    type:'signup',
+    email,
+    options:{emailRedirectTo:CRM_URL}
+  });
+  setStatus('authStatus',error?error.message:'Confirmation email sent. Check Inbox, Junk, and Spam.');
 });
 
 $('activationForm').addEventListener('submit',async e=>{
