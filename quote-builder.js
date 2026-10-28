@@ -96,7 +96,7 @@ form?.addEventListener('submit', async event => {
     const result = await response.json();
     if (!response.ok) throw new Error(result.error || 'Unable to create quote.');
 
-    window.location.href = 'quote.html?token=' + encodeURIComponent(result.quote.token);
+    window.location.href = 'quote.html?token=' + encodeURIComponent(result.quote.token) + '&demo=1';
   } catch (error) {
     status.textContent = error.message || 'We could not calculate your quote. Please check the venue address and try again.';
     submitButton.disabled = false;
