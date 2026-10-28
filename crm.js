@@ -151,21 +151,22 @@ function paymentForBooking(id){return state.payments.find(p=>p.booking_id===id&&
 function renderAll(){renderDashboard();renderLeads();renderBookings();renderPricing()}
 
 function renderDashboard(){
-  const activeLeads=state.leads.filter(l=>!['declined','completed','lost'].includes(l.status)).length;
-  const awaiting=state.quotes.filter(q=>['sent','viewed'].includes(q.status)).length;
-  const booked=state.bookings.filter(b=>['booked','event_prep'].includes(b.status)).length;
-  const bookedRevenue=state.bookings.filter(b=>['booked','event_prep','completed'].includes(b.status)).reduce((sum,b)=>sum+(quoteForBooking(b)?.total_cents||0),0);
-  const outstanding=state.bookings.filter(b=>['booked','event_prep'].includes(b.status)).reduce((sum,b)=>sum+(b.remaining_balance_cents||0),0);
+  const realLeadIds=new Set(state.leads.filter(l=>l.source!=='demo').map(l=>l.id));
+  const activeLeads=state.leads.filter(l=>l.source!=='demo'&&!['declined','completed','lost'].includes(l.status)).length;
+  const awaiting=state.quotes.filter(q=>realLeadIds.has(q.lead_id)&&['sent','viewed'].includes(q.status)).length;
+  const booked=state.bookings.filter(b=>realLeadIds.has(b.lead_id)&&['booked','event_prep'].includes(b.status)).length;
+  const bookedRevenue=state.bookings.filter(b=>realLeadIds.has(b.lead_id)&&['booked','event_prep','completed'].includes(b.status)).reduce((sum,b)=>sum+(quoteForBooking(b)?.total_cents||0),0);
+  const outstanding=state.bookings.filter(b=>realLeadIds.has(b.lead_id)&&['booked','event_prep'].includes(b.status)).reduce((sum,b)=>sum+(b.remaining_balance_cents||0),0);
 
   $('metricGrid').innerHTML=[
     ['Active Leads',activeLeads,'in pipeline'],['Awaiting Decision',awaiting,'open quotes'],['Booked Events',booked,'active bookings'],['Booked Revenue',money(bookedRevenue),'all booked'],['Outstanding',money(outstanding),'remaining balances']
   ].map(x=>'<div class="metric-card"><span>'+x[0]+'</span><strong>'+x[1]+'</strong><small>'+x[2]+'</small></div>').join('');
 
   const groups=[
-    ['New',state.leads.filter(l=>l.status==='new').length],
-    ['Quoted',state.leads.filter(l=>l.status==='quoted').length],
-    ['Accepted',state.leads.filter(l=>l.status==='accepted').length],
-    ['Booked',state.leads.filter(l=>['booked','event_prep'].includes(l.status)).length]
+    ['New',state.leads.filter(l=>l.source!=='demo'&&l.status==='new').length],
+    ['Quoted',state.leads.filter(l=>l.source!=='demo'&&l.status==='quoted').length],
+    ['Accepted',state.leads.filter(l=>l.source!=='demo'&&l.status==='accepted').length],
+    ['Booked',state.leads.filter(l=>l.source!=='demo'&&['booked','event_prep'].includes(l.status)).length]
   ];
   $('pipelineSummary').innerHTML=groups.map(x=>'<div class="pipeline-pill"><strong>'+x[1]+'</strong><span>'+x[0]+'</span></div>').join('');
 
@@ -179,7 +180,8 @@ function renderDashboard(){
 
 function leadRow(l){
   const q=quoteForLead(l.id);
-  return '<tr><td><strong>'+esc(l.first_name+' '+(l.last_name||''))+'</strong><span class="subtle">'+esc(l.email)+'</span></td><td>'+esc(l.event_type)+'</td><td>'+fmtDate(l.event_date)+'</td><td>'+esc(l.guest_count||'—')+'</td><td>'+esc(l.package_interest||'—')+'</td><td>'+(q?money(q.total_cents):'—')+'</td><td>'+statusBadge(l.status)+'</td><td><button class="row-action" data-open-lead="'+esc(l.id)+'">View</button></td></tr>';
+  const demo=l.source==='demo'?'<span class="status-badge demo">DEMO</span> ':'';
+  return '<tr><td><strong>'+demo+esc(l.first_name+' '+(l.last_name||''))+'</strong><span class="subtle">'+esc(l.email)+'</span></td><td>'+esc(l.event_type)+'</td><td>'+fmtDate(l.event_date)+'</td><td>'+esc(l.guest_count||'—')+'</td><td>'+esc(l.package_interest||'—')+'</td><td>'+(q?money(q.total_cents):'—')+'</td><td>'+statusBadge(l.status)+'</td><td><button class="row-action" data-open-lead="'+esc(l.id)+'">View</button></td></tr>';
 }
 
 function renderLeads(){
@@ -192,7 +194,8 @@ function renderLeads(){
 function renderBookings(){
   $('bookingsBody').innerHTML=state.bookings.length?state.bookings.map(b=>{
     const l=leadForBooking(b),q=quoteForBooking(b),p=paymentForBooking(b.id);
-    return '<tr><td><strong>#'+esc(b.booking_number)+'</strong><span class="subtle">'+esc(l?.event_type||'')+'</span></td><td>'+esc((l?.first_name||'')+' '+(l?.last_name||''))+'</td><td>'+fmtDate(l?.event_date)+'</td><td>'+money(q?.total_cents||0)+'</td><td>'+(p?money(p.amount_cents):money(b.retainer_paid_cents||0))+'</td><td>'+money(b.remaining_balance_cents||0)+'</td><td>'+statusBadge(b.status)+'</td><td><button class="row-action" data-open-booking="'+esc(b.id)+'">Open</button></td></tr>';
+    const demo=l?.source==='demo'?'<span class="status-badge demo">DEMO</span> ':'';
+    return '<tr><td><strong>'+demo+'#'+esc(b.booking_number)+'</strong><span class="subtle">'+esc(l?.event_type||'')+'</span></td><td>'+esc((l?.first_name||'')+' '+(l?.last_name||''))+'</td><td>'+fmtDate(l?.event_date)+'</td><td>'+money(q?.total_cents||0)+'</td><td>'+(p?money(p.amount_cents):money(b.retainer_paid_cents||0))+'</td><td>'+money(b.remaining_balance_cents||0)+'</td><td>'+statusBadge(b.status)+'</td><td><button class="row-action" data-open-booking="'+esc(b.id)+'">Open</button></td></tr>';
   }).join(''):'<tr><td colspan="8" class="empty">No bookings yet.</td></tr>';
   bindRowButtons();
 }
@@ -251,7 +254,7 @@ function openLead(id){
       <button class="outline-button" id="saveLeadStatus">Save Status</button>
     </div></div>
   `;
-  openDrawer('Lead #'+l.lead_number,l.first_name+' '+(l.last_name||''),html);
+  openDrawer(l.source==='demo'?'Demo Lead #'+l.lead_number:'Lead #'+l.lead_number,l.first_name+' '+(l.last_name||''),html);
   if($('copyQuoteLink')) $('copyQuoteLink').onclick=()=>navigator.clipboard.writeText(quoteLink);
   if($('openRelatedBooking')) $('openRelatedBooking').onclick=()=>openBooking(b.id);
   $('saveLeadStatus').onclick=async()=>{
