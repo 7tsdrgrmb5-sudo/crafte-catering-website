@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive"><meta name="theme-color" content="#050505">
+<title>Demo Quote | CraftE Catering LLC</title>
+<link rel="stylesheet" href="styles.css?v=5">
+</head>
+<body class="quote-page-body">
+<main class="quote-page">
+<a class="quote-page-brand" href="quote-beta-4f8a21.html"><img src="assets/gold_cc_monogram_catering_logo.svg?v=2" alt="CraftE Catering LLC"></a>
+<section class="client-quote-card" id="quoteCard">
+<div style="margin:0 0 18px;padding:10px 12px;border-radius:10px;background:#d4af37;color:#050505;font-weight:900;text-align:center">DEMO MODE — NO CRM RECORD / NO CHARGE</div>
+<p class="eyebrow">Your CraftE Proposal</p><h1 id="quoteNumber">Demo Quote</h1><p id="quoteIntro" class="quote-intro"></p>
+<div id="quoteMeta" class="quote-meta"></div><div id="quoteItems" class="quote-line-items"></div>
+<div class="quote-totals" id="quoteTotals"></div><div class="quote-expiry" id="quoteExpiry"></div>
+<div class="quote-actions"><button class="btn btn-gold" id="acceptQuote" type="button">Demo: Accept & Reserve My Date</button><button class="btn btn-ghost" id="declineQuote" type="button">Decline Quote</button></div>
+<p class="quote-fine-print">This is a private simulation. Nothing on this page is written to the live CraftE CRM and no payment will be processed.</p>
+</section></main>
+<script>
+const q=JSON.parse(sessionStorage.getItem('crafte_demo_quote')||'null');
+const money=c=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(c/100);
+if(!q){location.href='quote-beta-4f8a21.html#quote'}else{
+ const p=q.payload||{};
+ document.getElementById('quoteNumber').textContent=q.number;
+ document.getElementById('quoteIntro').textContent='Prepared for '+[p.first_name,p.last_name].filter(Boolean).join(' ');
+ document.getElementById('quoteMeta').innerHTML=[
+ ['Event',p.event_type],['Date',p.event_date?new Date(p.event_date+'T12:00:00').toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'}):''],
+ ['Location',[p.venue_name,p.venue_city,p.venue_state].filter(Boolean).join(' • ')],['Guests',p.guest_count],['Package',p.package?p.package[0].toUpperCase()+p.package.slice(1):'']
+ ].filter(x=>x[1]).map(x=>'<div><span>'+x[0]+'</span><strong>'+x[1]+'</strong></div>').join('');
+ document.getElementById('quoteItems').innerHTML=q.items.map(i=>'<div class="quote-line"><span>'+i.description+'</span><strong class="'+(i.amount<0?'credit':'')+'">'+money(i.amount)+'</strong></div>').join('');
+ document.getElementById('quoteTotals').innerHTML='<div><span>Event Total</span><strong>'+money(q.total_cents)+'</strong></div><div class="retainer-row"><span>30% Retainer Due Today</span><strong>'+money(q.retainer_cents)+'</strong></div><div><span>Remaining Balance</span><strong>'+money(q.balance_cents)+'</strong></div>';
+ document.getElementById('quoteExpiry').textContent='Demo quote valid for 72 hours';
+}
+document.getElementById('acceptQuote').onclick=()=>location.href='demo-checkout.html';
+document.getElementById('declineQuote').onclick=()=>{alert('Demo quote declined — no CRM record was created.');location.href='quote-beta-4f8a21.html#quote'};
+</script>
+</body></html>
