@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow,noarchive"><title>Demo Booking Confirmed | CraftE</title><link rel="stylesheet" href="styles.css"></head>
+<body class="quote-page-body">
+<main class="quote-page">
+<a class="quote-page-brand" href="index.html"><img src="assets/gold_cc_monogram_catering_logo.svg?v=2" alt="CraftE Catering LLC"></a>
+<section class="client-quote-card booking-success-card">
+<div style="background:#d4af37;color:#050505;padding:9px 12px;border-radius:10px;font-weight:900;margin-bottom:18px">DEMO MODE — NO CHARGE</div>
+<div class="success-mark">✓</div><p class="eyebrow">CraftE Catering</p><h1>Your event is booked!</h1>
+<p id="msg">Demo booking confirmed. In the live flow, this screen appears only after Stripe confirms the 30% retainer.</p>
+<div class="quote-totals" id="summary"></div>
+<p class="quote-fine-print">Next: CraftE finalizes event details, menu planning, and the client shopping list.</p>
+<a class="btn btn-gold" href="crm.html">Open CraftE CRM</a>
+<a class="btn btn-ghost" href="quote-beta-4f8a21.html#quote">Back to Beta</a>
+</section></main>
+<script>
+const U='https://ozjctdmdwoutsebkjcpn.supabase.co',K='sb_publishable_tERnQU70mt-6imXPumOiUg_EDTYsQpH';const token=new URLSearchParams(location.search).get('token');const money=c=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(c/100);
+fetch(U+'/functions/v1/get-quote',{method:'POST',headers:{'Content-Type':'application/json','apikey':K},body:JSON.stringify({token})}).then(r=>r.json()).then(d=>{if(!d.quote)return;document.getElementById('summary').innerHTML='<div><span>'+d.quote.number+'</span><strong>'+money(d.quote.total_cents)+'</strong></div><div class="retainer-row"><span>Demo retainer</span><strong>'+money(d.quote.retainer_cents)+'</strong></div><div><span>Remaining balance</span><strong>'+money(d.quote.balance_cents)+'</strong></div>'});
+</script></body></html>
