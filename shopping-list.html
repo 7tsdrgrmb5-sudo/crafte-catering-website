@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex,nofollow,noarchive" />
+  <meta name="theme-color" content="#050505" />
+  <title>Your CraftE Shopping List | CraftE Catering LLC</title>
+  <link rel="icon" type="image/svg+xml" href="assets/gold_cc_monogram_catering_logo.svg?v=2" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .shopping-page{width:min(860px,calc(100% - 32px));margin:0 auto;padding:38px 0 80px}
+    .shopping-brand img{width:220px;height:74px;object-fit:contain;object-position:left center}
+    .shopping-card{margin-top:24px;border:1px solid rgba(212,175,55,.25);background:#090909;border-radius:24px;padding:clamp(24px,5vw,48px)}
+    .shopping-card h1{font-family:"Cormorant Garamond",serif;color:#f5dfa0;font-size:clamp(2.4rem,7vw,4.5rem);line-height:.95;margin:8px 0 10px}
+    .shopping-meta{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:24px 0}.shopping-meta div{padding:12px;border:1px solid rgba(255,255,255,.08);border-radius:12px;background:#111}.shopping-meta span{display:block;color:#777;text-transform:uppercase;font-size:.68rem;letter-spacing:.08em;margin-bottom:4px}.shopping-category{margin-top:28px}.shopping-category h2{color:#e4c763;font-size:1rem;text-transform:uppercase;letter-spacing:.08em}.shopping-row-client{display:flex;justify-content:space-between;gap:18px;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.08)}.shopping-row-client small{display:block;color:#888;margin-top:3px}.shopping-qty{white-space:nowrap;font-weight:800}.shopping-note{color:#aaa;line-height:1.6}.shopping-actions{display:flex;gap:10px;margin-top:28px}.shopping-status{color:#d4af37;margin-top:12px}.empty-list{color:#888;padding:30px 0;text-align:center}
+    @media(max-width:700px){.shopping-meta{grid-template-columns:1fr 1fr}.shopping-actions{flex-direction:column}}
+    @media print{body{background:white!important;color:black!important}.shopping-page{width:100%;padding:0}.shopping-brand img{filter:grayscale(1)}.shopping-card{border:0;background:white!important;color:black!important;padding:10px}.shopping-actions{display:none}.shopping-row-client{border-color:#ddd}.shopping-category h2{color:#555}.shopping-note,.shopping-row-client small,.shopping-meta span{color:#555}.shopping-meta div{background:white;border-color:#ddd}}
+  </style>
+</head>
+<body class="quote-page-body">
+  <main class="shopping-page">
+    <a class="shopping-brand" href="index.html"><img src="assets/gold_cc_monogram_catering_logo.svg?v=2" alt="CraftE Catering LLC" /></a>
+    <section class="shopping-card">
+      <p class="eyebrow">Event Shopping Guide</p>
+      <h1>Your CraftE Shopping List</h1>
+      <p class="shopping-note" id="intro">Loading your event list…</p>
+      <div class="shopping-meta" id="shoppingMeta"></div>
+      <div id="shoppingContent"></div>
+      <p class="shopping-note" id="listNotes"></p>
+      <p class="shopping-status" id="shoppingStatus"></p>
+      <div class="shopping-actions">
+        <button class="btn btn-gold" type="button" onclick="window.print()">Print / Save PDF</button>
+        <a class="btn btn-ghost" href="https://www.instagram.com/craftecatering/" target="_blank" rel="noopener">Questions? Message CraftE</a>
+      </div>
+    </section>
+  </main>
+  <script>
+    const SUPABASE_URL='https://ozjctdmdwoutsebkjcpn.supabase.co';
+    const KEY='sb_publishable_tERnQU70mt-6imXPumOiUg_EDTYsQpH';
+    const token=new URLSearchParams(location.search).get('token');
+    const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const fmtDate=v=>v?new Date(v+'T12:00:00').toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'}):'—';
+
+    async function load(){
+      if(!token){document.getElementById('shoppingStatus').textContent='This shopping-list link is incomplete.';return}
+      const res=await fetch(SUPABASE_URL+'/functions/v1/get-shopping-list',{method:'POST',headers:{'Content-Type':'application/json','apikey':KEY},body:JSON.stringify({token})});
+      const data=await res.json();
+      if(!res.ok){document.getElementById('shoppingStatus').textContent=data.error||'Unable to load shopping list.';return}
+      const l=data.list,client=l.client||{},details=l.event_details||{};
+      document.getElementById('intro').textContent='Prepared for '+[client.first_name,client.last_name].filter(Boolean).join(' ')+'. Please use this as your event purchasing guide and contact CraftE before making substitutions that may affect the final menu.';
+      document.getElementById('shoppingMeta').innerHTML=[
+        ['Event',client.event_type],['Date',fmtDate(client.event_date)],['Location',[client.venue_name,client.venue_city,client.venue_state].filter(Boolean).join(' • ')],['Guests',details.final_guest_count||client.guest_count]
+      ].map(x=>'<div><span>'+esc(x[0])+'</span><strong>'+esc(x[1]||'—')+'</strong></div>').join('');
+
+      const groups={};
+      (l.items||[]).forEach(item=>{(groups[item.category]??=[]).push(item)});
+      const order=['alcohol','mixer','juice','syrup','garnish','ice','other'];
+      const html=order.filter(k=>groups[k]?.length).map(category=>'<section class="shopping-category"><h2>'+esc(category)+'</h2>'+groups[category].map(item=>'<div class="shopping-row-client"><div><strong>'+esc(item.item_name)+'</strong>'+(item.notes?'<small>'+esc(item.notes)+'</small>':'')+'</div><div class="shopping-qty">'+esc(item.quantity??'')+' '+esc(item.unit||'')+'</div></div>').join('')+'</section>').join('');
+      document.getElementById('shoppingContent').innerHTML=html||'<div class="empty-list">Your shopping list is still being finalized.</div>';
+      if(l.notes)document.getElementById('listNotes').textContent=l.notes;
+      document.getElementById('shoppingStatus').textContent=l.status==='sent'||l.status==='ready'?'This is the current CraftE shopping list for your event.':'Draft — CraftE is still finalizing this list.';
+    }
+    load();
+  </script>
+</body>
+</html>
