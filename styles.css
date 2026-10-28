@@ -236,3 +236,118 @@ details p { color: #a29b91; padding-right: 55px; margin-bottom: 0; }
   .instagram-pill { width: 100%; text-align: center; }
   .footer-logo { width: 250px; }
 }
+
+
+/* Automated quote system */
+.optional { opacity: .6; font-size: .85em; font-weight: 400; }
+.form-row-three { grid-template-columns: 1.6fr .6fr .9fr; }
+.field-help { margin: 0 0 12px; color: var(--muted, #a8a8a8); font-size: .88rem; line-height: 1.5; }
+.package-picker { display: grid; gap: 10px; }
+.package-choice {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 14px 16px;
+  border: 1px solid rgba(212,175,55,.28);
+  border-radius: 14px;
+  background: rgba(255,255,255,.025);
+  cursor: pointer;
+}
+.package-choice input { margin-top: 5px; accent-color: #d4af37; }
+.package-choice span { display: grid; gap: 4px; }
+.package-choice strong { color: #f4e0a0; }
+.package-choice small { color: #aaa; line-height: 1.45; }
+.check span { margin-left: auto; color: #d4af37; font-size: .88rem; font-weight: 700; }
+#customizeOptions .check { display: flex; align-items: center; gap: 9px; width: 100%; }
+
+.quote-page-body {
+  min-height: 100vh;
+  margin: 0;
+  background: radial-gradient(circle at top, #201704 0, #080808 32%, #030303 78%);
+  color: #f5f1e8;
+  font-family: Inter, sans-serif;
+}
+.quote-page {
+  width: min(860px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 38px 0 70px;
+}
+.quote-page-brand { display: inline-block; margin-bottom: 26px; }
+.quote-page-brand img { width: 220px; max-height: 74px; object-fit: contain; object-position: left center; }
+.client-quote-card {
+  border: 1px solid rgba(212,175,55,.28);
+  background: rgba(10,10,10,.94);
+  box-shadow: 0 24px 80px rgba(0,0,0,.46);
+  border-radius: 24px;
+  padding: clamp(24px, 5vw, 52px);
+}
+.client-quote-card h1 {
+  margin: 6px 0 8px;
+  font-family: "Cormorant Garamond", serif;
+  font-size: clamp(2.3rem, 7vw, 4.5rem);
+  line-height: .95;
+  color: #f6df93;
+}
+.quote-intro { color: #b8b2a5; margin-bottom: 28px; }
+.quote-meta {
+  display: grid;
+  grid-template-columns: repeat(5,minmax(0,1fr));
+  gap: 10px;
+  margin: 24px 0 30px;
+}
+.quote-meta div {
+  padding: 13px;
+  border-radius: 12px;
+  background: #111;
+  border: 1px solid rgba(255,255,255,.07);
+}
+.quote-meta span, .quote-meta strong { display: block; }
+.quote-meta span { color: #888; font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 5px; }
+.quote-meta strong { font-size: .88rem; overflow-wrap: anywhere; }
+.quote-line-items { border-top: 1px solid rgba(255,255,255,.08); }
+.quote-line {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 13px 2px;
+  border-bottom: 1px solid rgba(255,255,255,.07);
+}
+.quote-line strong.credit { color: #91d5a2; }
+.quote-totals {
+  margin: 24px 0 16px;
+  padding: 20px;
+  border-radius: 16px;
+  background: #0e0e0e;
+  border: 1px solid rgba(212,175,55,.22);
+}
+.quote-totals > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 7px 0;
+}
+.quote-totals .retainer-row {
+  margin: 8px -8px;
+  padding: 12px 8px;
+  border-top: 1px solid rgba(212,175,55,.2);
+  border-bottom: 1px solid rgba(212,175,55,.2);
+  color: #f4d67a;
+}
+.quote-expiry, .quote-fine-print, .quote-action-status { color: #989898; line-height: 1.55; font-size: .88rem; }
+.quote-action-status { color: #f4d67a; min-height: 1.4em; }
+.quote-actions { display: flex; gap: 12px; margin: 24px 0 14px; }
+.decline-panel { margin-top: 18px; padding: 18px; border-radius: 14px; background: #101010; }
+.decline-panel textarea { width: 100%; margin: 8px 0 12px; }
+.booking-success-card { text-align: center; }
+.success-mark {
+  width: 64px; height: 64px; margin: 0 auto 18px; border-radius: 50%;
+  display: grid; place-items: center; background: #d4af37; color: #050505; font-size: 2rem; font-weight: 900;
+}
+.booking-success-card .btn { margin: 8px 5px 0; }
+
+@media (max-width: 720px) {
+  .form-row-three { grid-template-columns: 1fr; }
+  .quote-meta { grid-template-columns: 1fr 1fr; }
+  .quote-actions { flex-direction: column; }
+  .quote-page-brand img { width: 180px; }
+}
