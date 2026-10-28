@@ -174,7 +174,7 @@
         <div class="section-heading centered reveal">
           <p class="eyebrow">Packages</p>
           <h2>Choose your level of experience.</h2>
-          <p>Final pricing can vary based on guest count, service hours, travel, staffing and what you want CraftE to provide.</p>
+          <p>Choose the experience level you want, then customize it. Guest count, staffing, service area and selected upgrades shape your exact quote.</p>
         </div>
 
         <div class="package-grid">
@@ -214,15 +214,15 @@
           <article class="package-card reveal delay-2">
             <div>
               <p class="package-label">Premium</p>
-              <div class="price custom">Custom</div>
-              <p class="package-copy">Built for larger weddings, longer service and more complex event needs.</p>
+              <div class="price"><span>from</span>$950</div>
+              <p class="package-copy">Our highest experience level, with premium service touches you can still customize.</p>
             </div>
             <ul>
-              <li>Custom staffing plan</li>
-              <li>Extended service hours</li>
-              <li>Large guest counts</li>
-              <li>Hydration or specialty stations</li>
-              <li>Fully customized event scope</li>
+              <li>Premium styling & elevated garnishes</li>
+              <li>Dedicated cocktail server</li>
+              <li>Shot O’Clock experience</li>
+              <li>Customized cocktail/mocktail menu</li>
+              <li>Core CraftE bar setup & supplies</li>
             </ul>
             <a href="#quote" class="text-link">Build Premium →</a>
           </article>
@@ -264,7 +264,7 @@
           <span>Surrounding Areas</span>
           <span>Long-distance by quote</span>
         </div>
-        <p class="area-note">Travel outside our primary service area may include an additional travel fee.</p>
+        <p class="area-note">Events outside our local service area may include an Extended Service Area fee, shown clearly in your quote.</p>
       </div>
     </section>
 
@@ -315,7 +315,7 @@
           </details>
           <details class="reveal">
             <summary>How far do you travel?</summary>
-            <p>We primarily serve Los Angeles County and Orange County, with the Inland Empire and surrounding Southern California areas available by quote. Longer travel may include an additional fee.</p>
+            <p>We primarily serve Los Angeles County and Orange County, with the Inland Empire and surrounding Southern California areas available by quote. Events outside our local service area may include an Extended Service Area fee, shown clearly in your quote.</p>
           </details>
           <details class="reveal delay-1">
             <summary>How far in advance should I book?</summary>
@@ -340,52 +340,75 @@
     <section class="section quote-section" id="quote">
       <div class="container quote-grid">
         <div class="quote-copy reveal">
-          <p class="eyebrow">Request a Quote</p>
-          <h2>Tell us what you’re celebrating.</h2>
-          <p>Fill this out once. We’ll turn your answers into a ready-to-send DM, copy it for you, and open CraftE on Instagram.</p>
+          <p class="eyebrow">Build Your Quote</p>
+          <h2>Choose your experience. Make it yours.</h2>
+          <p>Select a CraftE package, tell us about your event, and customize the service. We’ll calculate your exact quote automatically — including event size, staffing, service area and your selected upgrades.</p>
           <div class="instagram-contact-card">
-            <span>Bookings & questions</span>
-            <a href="https://www.instagram.com/craftecatering/" target="_blank" rel="noopener">@craftecatering ↗</a>
-            <small>No business email needed.</small>
+            <span>No back-and-forth required</span>
+            <strong>Quote → Accept → 30% Retainer → Booked</strong>
+            <small>You can still message @craftecatering anytime if you have questions.</small>
           </div>
         </div>
 
         <form class="quote-form reveal delay-1" id="quoteForm">
           <div class="form-row">
-            <label>Name<input required name="name" type="text" placeholder="Your name" /></label>
-            <label>Event date<input required name="date" type="date" /></label>
+            <label>First name<input required name="first_name" type="text" autocomplete="given-name" placeholder="First name" /></label>
+            <label>Last name<input name="last_name" type="text" autocomplete="family-name" placeholder="Last name" /></label>
           </div>
           <div class="form-row">
-            <label>City / Venue<input required name="city" type="text" placeholder="City or venue" /></label>
-            <label>Event type<select required name="type"><option value="">Select one</option><option>Wedding</option><option>Birthday</option><option>Quinceañera</option><option>Private Party</option><option>Corporate Event</option><option>Mocktail Event</option><option>Other</option></select></label>
+            <label>Email<input required name="email" type="email" autocomplete="email" placeholder="you@example.com" /></label>
+            <label>Phone<input name="phone" type="tel" autocomplete="tel" placeholder="(555) 555-5555" /></label>
           </div>
           <div class="form-row">
-            <label>Total guests<input required name="guests" type="number" min="1" placeholder="e.g. 100" /></label>
-            <label>Drinking guests<input name="drinking" type="number" min="0" placeholder="e.g. 80" /></label>
+            <label>Event date<input required name="event_date" type="date" /></label>
+            <label>Event type<select required name="event_type"><option value="">Select one</option><option>Wedding</option><option>Birthday</option><option>Quinceañera</option><option>Private Party</option><option>Corporate Event</option><option>Mocktail Event</option><option>Other</option></select></label>
           </div>
+          <label>Venue name <span class="optional">(optional)</span><input name="venue_name" type="text" placeholder="Venue or private residence" /></label>
+          <label>Venue street address<input required name="venue_address" type="text" autocomplete="street-address" placeholder="123 Event St" /></label>
+          <div class="form-row form-row-three">
+            <label>City<input required name="venue_city" type="text" autocomplete="address-level2" placeholder="Anaheim" /></label>
+            <label>State<input required name="venue_state" type="text" value="CA" maxlength="2" /></label>
+            <label>ZIP<input name="venue_zip" type="text" inputmode="numeric" autocomplete="postal-code" placeholder="92801" /></label>
+          </div>
+
           <div class="form-row">
-            <label>Service hours<input required name="hours" type="text" placeholder="e.g. 5 hours" /></label>
-            <label>Indoors / Outdoors<select name="setting"><option>Indoors</option><option>Outdoors</option><option>Both</option><option>Not sure yet</option></select></label>
+            <label>Total guests<input required name="guest_count" type="number" min="1" max="2000" placeholder="e.g. 80" /></label>
+            <label>Drinking guests<input name="drinking_guest_count" type="number" min="0" placeholder="e.g. 65" /></label>
           </div>
-          <fieldset>
-            <legend>What will you provide?</legend>
-            <label class="check"><input type="checkbox" name="provided" value="Alcohol" /> Alcohol</label>
-            <label class="check"><input type="checkbox" name="provided" value="Sufficient ice" /> Sufficient ice</label>
-            <label class="check"><input type="checkbox" name="provided" value="Bar/workspace" /> Bar / workspace</label>
-            <label class="check"><input type="checkbox" name="provided" value="Not sure yet" /> Not sure yet</label>
+          <label>Service hours<input required name="service_hours" type="number" min="1" max="24" step="0.5" value="5" /></label>
+
+          <fieldset class="package-picker">
+            <legend>Choose your experience</legend>
+            <label class="package-choice">
+              <input required type="radio" name="package" value="basic" />
+              <span><strong>Basic — from $450</strong><small>Professional bartending essentials. Best when you want CraftE to keep it simple.</small></span>
+            </label>
+            <label class="package-choice">
+              <input required type="radio" name="package" value="deluxe" />
+              <span><strong>Deluxe — from $700</strong><small>Elevated styling, garnishes, signage and presentation included.</small></span>
+            </label>
+            <label class="package-choice">
+              <input required type="radio" name="package" value="premium" />
+              <span><strong>Premium — from $950</strong><small>The fullest CraftE experience, including premium touches and dedicated cocktail service.</small></span>
+            </label>
           </fieldset>
-          <label>Anything else?<textarea name="notes" rows="4" placeholder="Theme, signature drinks, venue requirements, add-ons, etc."></textarea></label>
-          <button class="btn btn-gold full" type="submit">Copy Request & Open Instagram</button>
-          <p class="form-note">Your information is not emailed or stored by this website. The form simply prepares a message for you to send through Instagram.</p>
+
+          <fieldset id="customizeOptions">
+            <legend>Customize your experience</legend>
+            <p class="field-help">Included upgrades will update automatically when you choose a package. Keep what you want and remove what you don’t.</p>
+            <label class="check"><input type="checkbox" name="options" value="THEMED_STYLING" /> Themed styling & décor <span data-option-price="THEMED_STYLING">+$125</span></label>
+            <label class="check"><input type="checkbox" name="options" value="ELEVATED_GARNISH" /> Elevated garnish package <span data-option-price="ELEVATED_GARNISH">+$100</span></label>
+            <label class="check"><input type="checkbox" name="options" value="COCKTAIL_SIGNAGE" /> Custom cocktail signage <span data-option-price="COCKTAIL_SIGNAGE">+$50</span></label>
+            <label class="check"><input type="checkbox" name="options" value="LED_LIGHTING" /> LED bar lighting <span data-option-price="LED_LIGHTING">+$50</span></label>
+            <label class="check"><input type="checkbox" name="options" value="COCKTAIL_SERVER" /> Dedicated cocktail server <span data-option-price="COCKTAIL_SERVER">+$250</span></label>
+            <label class="check"><input type="checkbox" name="options" value="SHOT_OCLOCK" /> Shot O’Clock experience <span data-option-price="SHOT_OCLOCK">+$100</span></label>
+            <label class="check"><input type="checkbox" name="options" value="MOCKTAIL_STATION" /> Dedicated mocktail station <span data-option-price="MOCKTAIL_STATION">+$100</span></label>
+          </fieldset>
+
+          <label>Anything else?<textarea name="notes" rows="4" placeholder="Theme, signature drinks, venue requirements, accessibility needs, or anything else we should know."></textarea></label>
+          <button class="btn btn-gold full" type="submit" id="quoteSubmit">Calculate My Quote</button>
+          <p class="form-note">Your quote is calculated from your event details and selections. No payment is due until you review and accept it.</p>
           <p class="quote-status" id="quoteStatus" role="status" aria-live="polite"></p>
-          <div class="quote-preview" id="quotePreview" hidden>
-            <div class="quote-preview-head">
-              <strong>Your Instagram DM is ready</strong>
-              <button class="copy-again" id="copyAgain" type="button">Copy again</button>
-            </div>
-            <pre id="quoteMessage"></pre>
-            <a class="btn btn-ghost full" href="https://www.instagram.com/craftecatering/" target="_blank" rel="noopener">Open @craftecatering</a>
-          </div>
         </form>
       </div>
     </section>
