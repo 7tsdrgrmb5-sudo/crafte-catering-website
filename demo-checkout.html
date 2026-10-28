@@ -1,53 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="robots" content="noindex,nofollow,noarchive">
-<title>Demo Checkout | CraftE Catering</title>
-<link rel="stylesheet" href="styles.css">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow,noarchive"><title>Demo Checkout | CraftE Catering</title>
 <style>
-body{min-height:100vh;background:#f6f7f9;color:#111;font-family:Inter,Arial,sans-serif;margin:0;display:grid;place-items:center;padding:24px}
-.demo-wrap{width:min(560px,100%)}.demo-banner{background:#111;color:#fff;padding:10px 14px;border-radius:10px;margin-bottom:14px;text-align:center;font-weight:800}.checkout-card{background:#fff;border:1px solid #ddd;border-radius:18px;padding:28px;box-shadow:0 18px 60px rgba(0,0,0,.12)}
-.checkout-card h1{margin:0 0 8px;font-size:1.6rem}.muted{color:#666}.row{display:flex;justify-content:space-between;gap:18px;padding:13px 0;border-bottom:1px solid #eee}.total{font-size:1.2rem;font-weight:800}.fake-input{border:1px solid #d7d7d7;border-radius:10px;padding:13px;margin:10px 0;color:#777;background:#fafafa}.pay{width:100%;border:0;border-radius:10px;padding:14px;background:#111;color:#fff;font-weight:800;cursor:pointer;margin-top:14px}.note{font-size:.78rem;color:#777;line-height:1.5;margin-top:14px}
-</style>
-</head>
-<body>
-<div class="demo-wrap">
-  <div class="demo-banner">DEMO CHECKOUT — NO REAL PAYMENT</div>
-  <div class="checkout-card">
-    <h1>Reserve your CraftE event</h1>
-    <p class="muted" id="quoteLabel">Loading quote…</p>
-    <div class="row"><span>30% booking retainer</span><strong id="retainer">$0.00</strong></div>
-    <div class="row"><span>Remaining after retainer</span><strong id="balance">$0.00</strong></div>
-    <div class="fake-input">4242 4242 4242 4242</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div class="fake-input">12/34</div><div class="fake-input">123</div></div>
-    <button class="pay" id="demoPay">Demo Pay Retainer</button>
-    <p class="note">This page is only for filming/testing the CraftE beta. No card data is collected and no Stripe charge is created. The live customer flow uses Stripe-hosted Checkout.</p>
-  </div>
-</div>
+body{min-height:100vh;background:#f6f7f9;color:#111;font-family:Arial,sans-serif;margin:0;display:grid;place-items:center;padding:24px}.demo-wrap{width:min(560px,100%)}.demo-banner{background:#111;color:#fff;padding:10px 14px;border-radius:10px;margin-bottom:14px;text-align:center;font-weight:800}.checkout-card{background:#fff;border:1px solid #ddd;border-radius:18px;padding:28px;box-shadow:0 18px 60px rgba(0,0,0,.12)}.checkout-card h1{margin:0 0 8px;font-size:1.6rem}.muted{color:#666}.row{display:flex;justify-content:space-between;gap:18px;padding:13px 0;border-bottom:1px solid #eee}.fake-input{border:1px solid #d7d7d7;border-radius:10px;padding:13px;margin:10px 0;color:#777;background:#fafafa}.pay{width:100%;border:0;border-radius:10px;padding:14px;background:#111;color:#fff;font-weight:800;cursor:pointer;margin-top:14px}.note{font-size:.78rem;color:#777;line-height:1.5;margin-top:14px}
+</style></head>
+<body><div class="demo-wrap"><div class="demo-banner">DEMO CHECKOUT — NO REAL PAYMENT / NO CRM WRITE</div><div class="checkout-card">
+<h1>Reserve your CraftE event</h1><p class="muted" id="quoteLabel"></p><div class="row"><span>30% booking retainer</span><strong id="retainer">$0.00</strong></div><div class="row"><span>Remaining after retainer</span><strong id="balance">$0.00</strong></div>
+<div class="fake-input">4242 4242 4242 4242</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div class="fake-input">12/34</div><div class="fake-input">123</div></div>
+<button class="pay" id="demoPay">Demo Pay Retainer</button><p class="note">This page is only for filming/testing. No card data is collected, no Stripe charge is created, and nothing is written to the live CRM.</p>
+</div></div>
 <script>
-const U='https://ozjctdmdwoutsebkjcpn.supabase.co',K='sb_publishable_tERnQU70mt-6imXPumOiUg_EDTYsQpH';
-const token=new URLSearchParams(location.search).get('token');const money=c=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(c/100);
-async function load(){const r=await fetch(U+'/functions/v1/get-quote',{method:'POST',headers:{'Content-Type':'application/json','apikey':K},body:JSON.stringify({token})});const d=await r.json();if(!r.ok){document.getElementById('quoteLabel').textContent=d.error||'Unable to load quote';return}document.getElementById('quoteLabel').textContent=d.quote.number+' • '+d.quote.client.event_type;document.getElementById('retainer').textContent=money(d.quote.retainer_cents);document.getElementById('balance').textContent=money(d.quote.balance_cents)}
-document.getElementById('demoPay').onclick=async()=>{
-  const button=document.getElementById('demoPay');
-  button.disabled=true;
-  button.textContent='Simulating Retainer…';
-  try{
-    const r=await fetch(U+'/functions/v1/demo-complete',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','apikey':K},
-      body:JSON.stringify({token})
-    });
-    const d=await r.json();
-    if(!r.ok) throw new Error(d.error||'Unable to complete demo booking.');
-    location.href='demo-success.html?token='+encodeURIComponent(token);
-  }catch(e){
-    button.disabled=false;
-    button.textContent='Demo Pay Retainer';
-    alert(e.message);
-  }
-};
-load();
-</script>
-</body></html>
+const q=JSON.parse(sessionStorage.getItem('crafte_demo_quote')||'null');const money=c=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(c/100);
+if(!q){location.href='quote-beta-4f8a21.html#quote'}else{document.getElementById('quoteLabel').textContent=q.number+' • '+q.payload.event_type;document.getElementById('retainer').textContent=money(q.retainer_cents);document.getElementById('balance').textContent=money(q.balance_cents)}
+document.getElementById('demoPay').onclick=()=>location.href='demo-success.html';
+</script></body></html>
