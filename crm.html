@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex,nofollow,noarchive" />
+  <meta name="theme-color" content="#050505" />
+  <title>CraftE CRM</title>
+  <link rel="icon" type="image/svg+xml" href="assets/gold_cc_monogram_catering_logo.svg?v=2" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="crm.css" />
+</head>
+<body>
+  <section class="auth-shell" id="authView">
+    <div class="auth-card">
+      <img src="assets/gold_cc_monogram_catering_logo.svg?v=2" alt="CraftE Catering LLC" class="auth-logo" />
+      <p class="eyebrow">Private Business System</p>
+      <h1>CraftE CRM</h1>
+      <p class="muted">Manage inquiries, quotes, retainers, booked events, event prep and shopping lists.</p>
+
+      <div class="auth-tabs">
+        <button class="auth-tab active" type="button" data-auth-tab="signin">Sign In</button>
+        <button class="auth-tab" type="button" data-auth-tab="signup">Create Account</button>
+      </div>
+
+      <form id="signInForm" class="auth-form">
+        <label>Email<input name="email" type="email" autocomplete="email" required /></label>
+        <label>Password<input name="password" type="password" autocomplete="current-password" minlength="8" required /></label>
+        <button class="gold-button" type="submit">Sign In</button>
+      </form>
+
+      <form id="signUpForm" class="auth-form" hidden>
+        <label>Your name<input name="display_name" type="text" autocomplete="name" required /></label>
+        <label>Email<input name="email" type="email" autocomplete="email" required /></label>
+        <label>Password<input name="password" type="password" autocomplete="new-password" minlength="8" required /></label>
+        <button class="gold-button" type="submit">Create Staff Account</button>
+        <small class="muted">If email confirmation is enabled, confirm the email first, then return here and sign in.</small>
+      </form>
+      <p id="authStatus" class="status-line" role="status"></p>
+      <a href="index.html" class="back-link">← Back to CraftE website</a>
+    </div>
+  </section>
+
+  <section class="auth-shell" id="activationView" hidden>
+    <div class="auth-card">
+      <img src="assets/gold_cc_monogram_catering_logo.svg?v=2" alt="CraftE Catering LLC" class="auth-logo" />
+      <p class="eyebrow">Staff Verification</p>
+      <h1>Activate CRM Access</h1>
+      <p class="muted">Your login exists, but it has not been approved for CraftE business data yet. Enter your one-time owner/staff activation code.</p>
+      <form id="activationForm" class="auth-form">
+        <label>Display name<input name="display_name" type="text" placeholder="Emanuel" /></label>
+        <label>Activation code<input name="code" type="text" autocomplete="one-time-code" required /></label>
+        <button class="gold-button" type="submit">Activate Access</button>
+      </form>
+      <p id="activationStatus" class="status-line" role="status"></p>
+      <button id="activationLogout" class="text-button" type="button">Sign out</button>
+    </div>
+  </section>
+
+  <div id="appView" class="crm-shell" hidden>
+    <aside class="crm-sidebar">
+      <a class="sidebar-brand" href="index.html" aria-label="CraftE website">
+        <img src="assets/gold_cc_monogram_catering_logo.svg?v=2" alt="CraftE Catering LLC" />
+      </a>
+      <nav class="crm-nav">
+        <button class="nav-item active" data-section="dashboard">Dashboard</button>
+        <button class="nav-item" data-section="leads">Leads</button>
+        <button class="nav-item" data-section="bookings">Bookings</button>
+        <button class="nav-item" data-section="pricing">Pricing</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div>
+          <span class="staff-label">Signed in as</span>
+          <strong id="staffName">CraftE Staff</strong>
+          <small id="staffRole"></small>
+        </div>
+        <button id="logoutButton" class="text-button" type="button">Sign out</button>
+      </div>
+    </aside>
+
+    <main class="crm-main">
+      <header class="crm-header">
+        <div>
+          <p class="eyebrow">CraftE Catering LLC</p>
+          <h1 id="sectionTitle">Business Dashboard</h1>
+        </div>
+        <div class="header-actions">
+          <button id="refreshButton" class="outline-button" type="button">Refresh</button>
+          <a class="gold-button small" href="index.html#quote" target="_blank">Open Quote Form ↗</a>
+        </div>
+      </header>
+
+      <p id="crmStatus" class="status-line"></p>
+
+      <section class="crm-section active" id="dashboardSection">
+        <div class="metric-grid" id="metricGrid"></div>
+
+        <div class="dashboard-grid">
+          <article class="panel">
+            <div class="panel-head"><div><p class="eyebrow">Pipeline</p><h2>Active leads</h2></div><button class="text-button" data-go="leads">View all</button></div>
+            <div id="pipelineSummary" class="pipeline-summary"></div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-head"><div><p class="eyebrow">Calendar</p><h2>Upcoming events</h2></div><button class="text-button" data-go="bookings">View bookings</button></div>
+            <div id="upcomingEvents" class="compact-list"></div>
+          </article>
+        </div>
+
+        <article class="panel">
+          <div class="panel-head"><div><p class="eyebrow">Recent Activity</p><h2>Newest inquiries</h2></div></div>
+          <div class="table-wrap"><table><thead><tr><th>Client</th><th>Event</th><th>Date</th><th>Guests</th><th>Package</th><th>Status</th><th></th></tr></thead><tbody id="recentLeadsBody"></tbody></table></div>
+        </article>
+      </section>
+
+      <section class="crm-section" id="leadsSection">
+        <article class="panel">
+          <div class="panel-head">
+            <div><p class="eyebrow">Sales Pipeline</p><h2>Leads & Quotes</h2></div>
+            <select id="leadFilter" class="compact-select">
+              <option value="all">All statuses</option>
+              <option value="new">New</option>
+              <option value="quoted">Quoted</option>
+              <option value="accepted">Accepted</option>
+              <option value="declined">Declined</option>
+              <option value="booked">Booked</option>
+              <option value="event_prep">Event Prep</option>
+              <option value="completed">Completed</option>
+              <option value="lost">Lost</option>
+            </select>
+          </div>
+          <div class="table-wrap"><table><thead><tr><th>Lead</th><th>Event</th><th>Date</th><th>Guests</th><th>Package</th><th>Quote</th><th>Status</th><th></th></tr></thead><tbody id="leadsBody"></tbody></table></div>
+        </article>
+      </section>
+
+      <section class="crm-section" id="bookingsSection">
+        <article class="panel">
+          <div class="panel-head"><div><p class="eyebrow">Operations</p><h2>Booked Events</h2></div></div>
+          <div class="table-wrap"><table><thead><tr><th>Booking</th><th>Client</th><th>Event Date</th><th>Total</th><th>Retainer</th><th>Balance</th><th>Status</th><th></th></tr></thead><tbody id="bookingsBody"></tbody></table></div>
+        </article>
+      </section>
+
+      <section class="crm-section" id="pricingSection">
+        <div class="pricing-layout">
+          <article class="panel">
+            <div class="panel-head"><div><p class="eyebrow">Quote Engine</p><h2>Active Pricing Rules</h2></div></div>
+            <div id="pricingRules" class="pricing-list"></div>
+          </article>
+          <article class="panel">
+            <div class="panel-head"><div><p class="eyebrow">Customer Choices</p><h2>Package Options</h2></div></div>
+            <div id="packageOptions" class="pricing-list"></div>
+          </article>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="drawerBackdrop" class="drawer-backdrop" hidden></div>
+  <aside id="recordDrawer" class="record-drawer" aria-hidden="true">
+    <div class="drawer-head">
+      <div><p class="eyebrow" id="drawerEyebrow">Record</p><h2 id="drawerTitle">Details</h2></div>
+      <button id="closeDrawer" class="drawer-close" type="button">×</button>
+    </div>
+    <div id="drawerContent"></div>
+  </aside>
+
+  <script type="module" src="crm.js"></script>
+</body>
+</html>
