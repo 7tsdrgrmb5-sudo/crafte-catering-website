@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#050505" />
+  <title>Booking Confirmed | CraftE Catering LLC</title>
+  <link rel="icon" type="image/png" href="assets/gold_cc_monogram_catering_logo.svg?v=2" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="quote-page-body">
+  <main class="quote-page">
+    <a class="quote-page-brand" href="index.html"><img src="assets/gold_cc_monogram_catering_logo.svg?v=2" alt="CraftE Catering LLC" /></a>
+    <section class="client-quote-card booking-success-card">
+      <div class="success-mark">✓</div>
+      <p class="eyebrow">CraftE Catering</p>
+      <h1 id="successTitle">Payment received.</h1>
+      <p id="successMessage">We’re confirming your booking now. Your event details are safely in our system.</p>
+      <div class="quote-totals" id="bookingSummary"></div>
+      <p class="quote-fine-print">Next, CraftE will finalize your drink menu and event details with you. Your shopping list will be prepared from the final guest count and menu.</p>
+      <a class="btn btn-gold" href="https://www.instagram.com/craftecatering/" target="_blank" rel="noopener">Message @craftecatering</a>
+      <a class="btn btn-ghost" href="index.html">Back to CraftE</a>
+    </section>
+  </main>
+  <script>
+    const SUPABASE_URL='https://ozjctdmdwoutsebkjcpn.supabase.co';
+    const KEY='sb_publishable_tERnQU70mt-6imXPumOiUg_EDTYsQpH';
+    const token=new URLSearchParams(location.search).get('token');
+    const money=c=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(c/100);
+    async function refresh(){
+      if(!token) return;
+      const res=await fetch(SUPABASE_URL+'/functions/v1/get-quote',{method:'POST',headers:{'Content-Type':'application/json','apikey':KEY},body:JSON.stringify({token})});
+      const data=await res.json();
+      if(!res.ok) return;
+      const q=data.quote;
+      document.getElementById('bookingSummary').innerHTML='<div><span>'+q.number+'</span><strong>'+money(q.total_cents)+'</strong></div><div class="retainer-row"><span>Retainer</span><strong>'+money(q.retainer_cents)+'</strong></div><div><span>Remaining Balance</span><strong>'+money(q.balance_cents)+'</strong></div>';
+      if(data.booking?.status==='booked'){
+        document.getElementById('successTitle').textContent='Your event is booked!';
+        document.getElementById('successMessage').textContent='Your 30% retainer has been confirmed. We’ll move into event details, menu planning and your shopping list next.';
+      } else {
+        setTimeout(refresh,2500);
+      }
+    }
+    refresh();
+  </script>
+</body>
+</html>
