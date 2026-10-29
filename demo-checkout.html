@@ -13,4 +13,4 @@ body{min-height:100vh;background:#f6f7f9;color:#111;font-family:Arial,sans-serif
 const q=JSON.parse(sessionStorage.getItem('crafte_demo_quote')||'null');const money=c=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(c/100);
 if(!q){location.href='quote-beta-4f8a21.html#quote'}else{document.getElementById('quoteLabel').textContent=q.number+' • '+q.payload.event_type;document.getElementById('retainer').textContent=money(q.retainer_cents);document.getElementById('balance').textContent=money(q.balance_cents)}
 document.getElementById('demoPay').onclick=()=>location.href='demo-success.html';
-</script></body></html>
+</script><script src="demo-analytics.js?v=1"></script>\n</body></html>
