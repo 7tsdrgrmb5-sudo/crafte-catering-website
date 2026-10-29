@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="crm.css?v=4" />
+  <link rel="stylesheet" href="crm.css?v=5" />
 </head>
 <body>
   <section class="auth-shell" id="authView">
@@ -29,7 +29,30 @@
         <label>Email<input name="email" type="email" autocomplete="email" required /></label>
         <label>Password<input name="password" type="password" autocomplete="current-password" minlength="8" required /></label>
         <button class="gold-button" type="submit">Sign In</button>
+        <div class="auth-help-row">
+          <button class="text-button auth-secondary" id="forgotPassword" type="button">Forgot password?</button>
+          <button class="text-button auth-secondary" id="forgotUsername" type="button">Forgot username?</button>
+        </div>
         <button class="text-button auth-secondary" id="resendConfirmation" type="button">Resend confirmation email</button>
+      </form>
+
+      <form id="forgotPasswordForm" class="auth-form" hidden>
+        <p class="muted">Enter the email used for your CraftE staff account. We’ll send a secure password-reset link.</p>
+        <label>Account email<input name="email" type="email" autocomplete="email" required /></label>
+        <button class="gold-button" type="submit">Send Reset Link</button>
+        <button class="text-button auth-secondary" id="backToSignInFromReset" type="button">← Back to sign in</button>
+      </form>
+
+      <div id="forgotUsernamePanel" class="auth-form" hidden>
+        <p class="muted"><strong>Your CraftE CRM username is your staff email address.</strong> If you don’t remember which email was used, contact the CraftE owner/admin to verify the staff account.</p>
+        <button class="text-button auth-secondary" id="backToSignInFromUsername" type="button">← Back to sign in</button>
+      </div>
+
+      <form id="newPasswordForm" class="auth-form" hidden>
+        <p class="muted">Create a new password for your CraftE CRM account.</p>
+        <label>New password<input name="password" type="password" autocomplete="new-password" minlength="8" required /></label>
+        <label>Confirm password<input name="confirm_password" type="password" autocomplete="new-password" minlength="8" required /></label>
+        <button class="gold-button" type="submit">Update Password</button>
       </form>
 
       <form id="signUpForm" class="auth-form" hidden>
@@ -69,6 +92,7 @@
         <button class="nav-item active" data-section="dashboard">Dashboard</button>
         <button class="nav-item" data-section="leads">Leads</button>
         <button class="nav-item" data-section="bookings">Bookings</button>
+        <button class="nav-item" data-section="analytics">Website Activity</button>
         <button class="nav-item" data-section="pricing">Pricing</button>
       </nav>
       <div class="sidebar-bottom">
@@ -143,6 +167,27 @@
         </article>
       </section>
 
+      <section class="crm-section" id="analyticsSection">
+        <div class="metric-grid" id="analyticsMetricGrid"></div>
+        <div class="dashboard-grid">
+          <article class="panel">
+            <div class="panel-head"><div><p class="eyebrow">Attribution</p><h2>Traffic Sources</h2></div></div>
+            <div id="trafficSources" class="pipeline-summary"></div>
+          </article>
+          <article class="panel">
+            <div class="panel-head"><div><p class="eyebrow">Privacy</p><h2>How identification works</h2></div></div>
+            <p class="muted">Visitors remain anonymous until they voluntarily submit the quote form. Once they do, their website session is linked to that lead so you can see their source and click journey. CraftE does not store visitor IP addresses in this tracker.</p>
+          </article>
+        </div>
+        <article class="panel">
+          <div class="panel-head"><div><p class="eyebrow">Visitor Journey</p><h2>Website Sessions</h2></div></div>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Visitor / Lead</th><th>Source</th><th>Landing</th><th>Views</th><th>Clicks</th><th>Last Activity</th><th></th></tr></thead>
+            <tbody id="visitorSessionsBody"></tbody>
+          </table></div>
+        </article>
+      </section>
+
       <section class="crm-section" id="pricingSection">
         <div class="pricing-layout">
           <article class="panel">
@@ -167,6 +212,6 @@
     <div id="drawerContent"></div>
   </aside>
 
-  <script type="module" src="crm.js?v=4"></script>
+  <script type="module" src="crm.js?v=5"></script>
 </body>
 </html>
