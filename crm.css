@@ -14,3 +14,14 @@
 
 @media(max-width:1050px){.metric-grid{grid-template-columns:repeat(3,1fr)}.dashboard-grid,.pricing-layout{grid-template-columns:1fr}}@media(max-width:760px){.crm-shell{grid-template-columns:1fr}.crm-sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line)}.crm-nav{display:flex;overflow:auto}.sidebar-bottom{display:none}.crm-main{padding:20px 14px}.crm-header{flex-direction:column}.metric-grid{grid-template-columns:1fr 1fr}.pipeline-summary{grid-template-columns:1fr 1fr}.detail-grid{grid-template-columns:1fr}.shopping-add{grid-template-columns:1fr 1fr}.shopping-add button{grid-column:1/-1}.form-two{grid-template-columns:1fr!important}}
 .status-badge.demo{color:#111;background:#d4af37;border-color:#d4af37;margin-right:6px;font-weight:900}
+
+.auth-help-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:2px}
+.auth-help-row .text-button{font-size:.88rem}
+.journey-list{display:grid;gap:9px;margin-top:12px}
+.journey-item{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;padding:11px 12px;border:1px solid rgba(212,175,55,.16);border-radius:10px;background:rgba(255,255,255,.025)}
+.journey-item div{display:grid;gap:3px;min-width:0}
+.journey-item strong{text-transform:capitalize;font-size:.86rem}
+.journey-item span{color:#c9c9c9;font-size:.82rem;overflow-wrap:anywhere}
+.journey-item small{color:#8d8d8d;white-space:nowrap;font-size:.73rem}
+#visitorSessionsBody .subtle{display:block;margin-top:3px}
+@media(max-width:700px){.journey-item{display:grid}.journey-item small{white-space:normal}}
