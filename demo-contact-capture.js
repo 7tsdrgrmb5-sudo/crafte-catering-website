@@ -3,6 +3,13 @@
   const DISMISS='crafte_demo_contact_dismissed';
   let shown=false, clicks=0;
 
+  const launcher=document.createElement('button');
+  launcher.type='button';
+  launcher.textContent='DEMO: Show Contact Pop-Up';
+  launcher.setAttribute('aria-label','Show demo contact pop-up');
+  launcher.style.cssText='position:fixed;right:16px;bottom:16px;z-index:9998;border:1px solid #d4af37;background:#0b0b0b;color:#f1cc75;padding:11px 14px;border-radius:999px;font:700 12px Inter,sans-serif;box-shadow:0 10px 30px rgba(0,0,0,.4);cursor:pointer';
+  document.body.appendChild(launcher);
+
   function show(){
     if(shown)return; shown=true;
     const wrap=document.createElement('div');
@@ -47,7 +54,7 @@
     const close=()=>{
       sessionStorage.setItem(DISMISS,'1');
       wrap.classList.remove('open');
-      setTimeout(()=>wrap.remove(),200);
+      setTimeout(()=>{wrap.remove();shown=false;},200);
     };
     wrap.querySelector('.contact-prompt-close').onclick=close;
     wrap.querySelector('.contact-prompt-skip').onclick=close;
@@ -81,8 +88,11 @@
     });
   }
 
-  // Faster in demo so it is easy to film/show.
-  if(!sessionStorage.getItem(DISMISS)) setTimeout(show,6000);
+  launcher.addEventListener('click',show);
+
+  // Always auto-show quickly in the private demo so it is easy to film/show.
+  sessionStorage.removeItem(DISMISS);
+  setTimeout(show,1500);
   document.addEventListener('click',e=>{
     if(shown)return;
     if(e.target.closest('.contact-prompt-card'))return;
