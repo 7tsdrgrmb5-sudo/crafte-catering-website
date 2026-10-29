@@ -57,10 +57,17 @@
     return 'Other';
   }
   function cleanText(v,max=180){return String(v||'').replace(/\s+/g,' ').trim().slice(0,max)}
+  function safeUrl(raw){
+    try{
+      const u=new URL(raw,location.origin);
+      ['token','session_id','code','access_token','refresh_token'].forEach(k=>u.searchParams.delete(k));
+      return u.origin===location.origin ? u.pathname+(u.search||'')+(u.hash||'') : u.origin+u.pathname;
+    }catch{return null}
+  }
   function send(eventType,extra={}){
     const body={
       session_id:sessionId,event_type:eventType,
-      path:location.pathname+location.search+location.hash,
+      path:safeUrl(location.href),
       referrer:attr.referrer,source:attr.source,medium:attr.medium,campaign:attr.campaign,content:attr.content,term:attr.term,
       device_type:device(),browser:browser(),...extra
     };
@@ -80,7 +87,7 @@
     send('click',{
       element:(el.tagName||'').toLowerCase()+(el.id?'#'+el.id:''),
       label:cleanText(el.getAttribute('aria-label')||el.textContent),
-      href:el.href||el.getAttribute('href')||null
+      href:safeUrl(el.href||el.getAttribute('href')||'')
     });
   },{capture:true});
 
