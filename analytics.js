@@ -15,6 +15,8 @@
 
   const params=new URLSearchParams(location.search);
   const ref=document.referrer||'';
+  let safeRef=ref;
+  try{const ru=new URL(ref);safeRef=ru.origin+ru.pathname}catch{}
   function sourceFrom(){
     const utm=(params.get('utm_source')||'').trim().toLowerCase();
     if(utm) return utm;
@@ -39,7 +41,7 @@
       campaign:params.get('utm_campaign')||null,
       content:params.get('utm_content')||null,
       term:params.get('utm_term')||null,
-      referrer:ref||null
+      referrer:safeRef||null
     };
     sessionStorage.setItem(ATTR_KEY,JSON.stringify(attr));
   }
