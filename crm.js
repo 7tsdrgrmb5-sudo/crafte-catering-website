@@ -17,7 +17,7 @@ const state = {
   session:null, staff:null,
   leads:[], quotes:[], quoteItems:[], bookings:[], payments:[], eventDetails:[],
   shoppingLists:[], shoppingItems:[], pricingRules:[], packageOptions:[],
-  visitorSessions:[], visitorEvents:[]
+  visitorSessions:[], visitorEvents:[], contactRequests:[]
 };
 
 function showOnly(view){
@@ -202,13 +202,14 @@ async function loadData(){
     supabase.from('pricing_rules').select('*').eq('active',true).order('rule_code'),
     supabase.from('package_options').select('*').eq('active',true).order('sort_order'),
     supabase.from('visitor_sessions').select('*').order('last_seen_at',{ascending:false}).limit(500),
-    supabase.from('visitor_events').select('*').order('created_at',{ascending:false}).limit(3000)
+    supabase.from('visitor_events').select('*').order('created_at',{ascending:false}).limit(3000),
+    supabase.from('website_contact_requests').select('*').order('created_at',{ascending:false}).limit(500)
   ];
   const results=await Promise.all(queries);
   const error=results.find(r=>r.error)?.error;
   if(error){setStatus('crmStatus',error.message);return}
 
-  [state.leads,state.quotes,state.quoteItems,state.bookings,state.payments,state.eventDetails,state.shoppingLists,state.shoppingItems,state.pricingRules,state.packageOptions,state.visitorSessions,state.visitorEvents]=results.map(r=>r.data||[]);
+  [state.leads,state.quotes,state.quoteItems,state.bookings,state.payments,state.eventDetails,state.shoppingLists,state.shoppingItems,state.pricingRules,state.packageOptions,state.visitorSessions,state.visitorEvents,state.contactRequests]=results.map(r=>r.data||[]);
   setStatus('crmStatus','');
   renderAll();
 }
@@ -281,7 +282,8 @@ function renderAnalytics(){
     ['Visitors',sessions.length,'tracked sessions'],
     ['Page Views',totalViews,'website views'],
     ['Clicks',totalClicks,'tracked button/link clicks'],
-    ['Identified Leads',identified,'sessions linked after quote submit']
+    ['Identified Leads',identified,'sessions linked after quote submit'],
+    ['Contact Requests',state.contactRequests.length,'asked CraftE to follow up']
   ].map(x=>'<div class="metric-card"><span>'+x[0]+'</span><strong>'+x[1]+'</strong><small>'+x[2]+'</small></div>').join('');
 
   const counts={};
@@ -289,12 +291,51 @@ function renderAnalytics(){
   const sources=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,8);
   $('trafficSources').innerHTML=sources.length?sources.map(([name,count])=>'<div class="pipeline-pill"><strong>'+count+'</strong><span>'+esc(name)+'</span></div>').join(''):'<div class="empty">No website activity recorded yet.</div>';
 
+  $('contactRequestsBody').innerHTML=state.contactRequests.length?state.contactRequests.map(r=>{
+    const contact=r.preferred_contact==='email'?(r.email||'—'):(r.phone||r.email||'—');
+    return '<tr><td><strong>'+esc(r.first_name+' '+(r.last_name||''))+'</strong><span class="subtle">'+esc(r.email||r.phone||'')+'</span></td><td>'+esc(r.preferred_contact)+'<span class="subtle">'+esc(contact)+'</span></td><td>'+esc(r.source||'website')+'</td><td>'+esc(r.event_type||'—')+'</td><td>'+fmtDate(r.event_date)+'</td><td>'+statusBadge(r.status)+'</td><td><button class="row-action" data-open-contact="'+esc(r.id)+'">Open</button></td></tr>';
+  }).join(''):'<tr><td colspan="7" class="empty">No contact requests yet.</td></tr>';
+
   $('visitorSessionsBody').innerHTML=sessions.length?sessions.map(s=>{
     const lead=state.leads.find(l=>l.id===s.lead_id);
     const who=lead?'<strong>'+esc(lead.first_name+' '+(lead.last_name||''))+'</strong><span class="subtle">'+esc(lead.email)+'</span>':'<strong>Anonymous visitor</strong><span class="subtle">Not yet submitted</span>';
     return '<tr><td>'+who+'</td><td><strong>'+esc(s.source||'direct')+'</strong><span class="subtle">'+esc(s.medium||'')+'</span></td><td>'+esc(s.landing_path||'—')+'</td><td>'+esc(s.page_view_count||0)+'</td><td>'+esc(s.click_count||0)+'</td><td>'+fmtDateTime(s.last_seen_at)+'</td><td><button class="row-action" data-open-visit="'+esc(s.id)+'">View Journey</button></td></tr>';
   }).join(''):'<tr><td colspan="7" class="empty">No website sessions yet.</td></tr>';
   bindRowButtons();
+}
+
+function openContactRequest(id){
+  const r=state.contactRequests.find(x=>x.id===id);if(!r)return;
+  const session=r.session_id?state.visitorSessions.find(s=>s.id===r.session_id):null;
+  const lead=r.lead_id?state.leads.find(l=>l.id===r.lead_id):null;
+  const html=`
+    <div class="detail-grid">
+      <div class="detail-box"><span>Name</span><strong>${esc(r.first_name+' '+(r.last_name||''))}</strong></div>
+      <div class="detail-box"><span>Source</span><strong>${esc(r.source||'website')}</strong></div>
+      <div class="detail-box"><span>Email</span><strong>${esc(r.email||'—')}</strong></div>
+      <div class="detail-box"><span>Phone</span><strong>${esc(r.phone||'—')}</strong></div>
+      <div class="detail-box"><span>Preferred Contact</span><strong>${esc(r.preferred_contact)}</strong></div>
+      <div class="detail-box"><span>Event</span><strong>${esc(r.event_type||'—')}</strong></div>
+      <div class="detail-box"><span>Event Date</span><strong>${fmtDate(r.event_date)}</strong></div>
+      <div class="detail-box"><span>Status</span><strong>${esc(r.status)}</strong></div>
+    </div>
+    ${r.message?'<div class="drawer-section"><h3>Message</h3><p class="muted">'+esc(r.message)+'</p></div>':''}
+    <div class="drawer-section"><h3>Consent</h3><p class="muted">${esc(r.consent_text)} • ${fmtDateTime(r.consent_at)}</p></div>
+    <div class="drawer-actions">
+      ${r.email?'<a class="outline-button" href="mailto:'+esc(r.email)+'">Email</a>':''}
+      ${r.phone?'<a class="outline-button" href="tel:'+esc(r.phone)+'">Call</a>':''}
+      ${session?'<button class="outline-button" id="openContactJourney">View Website Journey</button>':''}
+      ${lead?'<button class="gold-button small" id="openContactLead">Open Lead</button>':''}
+      ${r.status==='new'?'<button class="gold-button small" id="markContacted">Mark Contacted</button>':''}
+    </div>
+  `;
+  openDrawer('Contact Request',r.first_name+' '+(r.last_name||''),html);
+  if($('openContactJourney')) $('openContactJourney').onclick=()=>openVisitor(session.id);
+  if($('openContactLead')) $('openContactLead').onclick=()=>openLead(lead.id);
+  if($('markContacted')) $('markContacted').onclick=async()=>{
+    const {error}=await supabase.from('website_contact_requests').update({status:'contacted',updated_at:new Date().toISOString()}).eq('id',r.id);
+    if(error){alert(error.message);return} await loadData();openContactRequest(r.id);
+  };
 }
 
 function openVisitor(id){
@@ -338,6 +379,7 @@ function bindRowButtons(){
   document.querySelectorAll('[data-open-lead]').forEach(b=>b.onclick=()=>openLead(b.dataset.openLead));
   document.querySelectorAll('[data-open-booking]').forEach(b=>b.onclick=()=>openBooking(b.dataset.openBooking));
   document.querySelectorAll('[data-open-visit]').forEach(b=>b.onclick=()=>openVisitor(b.dataset.openVisit));
+  document.querySelectorAll('[data-open-contact]').forEach(b=>b.onclick=()=>openContactRequest(b.dataset.openContact));
 }
 
 function openDrawer(eyebrow,title,html){
