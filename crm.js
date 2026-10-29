@@ -95,7 +95,7 @@ $('forgotPasswordForm').addEventListener('submit',async e=>{
   const email=String(new FormData(e.currentTarget).get('email')||'').trim();
   if(!email)return;
   setStatus('authStatus','Sending secure reset link…');
-  const {error}=await supabase.auth.resetPasswordForEmail(email,{redirectTo:CRM_URL});
+  const {error}=await supabase.auth.resetPasswordForEmail(email,{redirectTo:CRM_URL+'?reset=1'});
   setStatus('authStatus',error?error.message:'If that email belongs to a CraftE staff account, a secure password-reset link has been sent. Check Inbox, Junk, and Spam.');
 });
 
@@ -109,6 +109,7 @@ $('newPasswordForm').addEventListener('submit',async e=>{
   const {error}=await supabase.auth.updateUser({password});
   if(error){setStatus('authStatus',error.message);return}
   await supabase.auth.signOut({scope:'local'});
+  history.replaceState({},'',CRM_URL);
   state.session=null; state.staff=null; clearIdleTimer();
   showOnly('authView'); showAuthForm('signInForm');
   setStatus('authStatus','Password updated successfully. Sign in with your new password.');
@@ -167,6 +168,11 @@ async function boot(){
   state.session=session;
   if(!session){clearIdleTimer();state.staff=null;showOnly('authView');showAuthForm('signInForm');return}
   resetIdleTimer();
+  if(new URLSearchParams(location.search).get('reset')==='1'){
+    showOnly('authView'); showAuthForm('newPasswordForm');
+    setStatus('authStatus','Password recovery verified. Choose your new password.');
+    return;
+  }
 
   const {data:staff,error}=await supabase.from('staff_profiles').select('*').eq('user_id',session.user.id).maybeSingle();
   if(error && error.code!=='PGRST116'){setStatus('authStatus',error.message);showOnly('authView');return}
