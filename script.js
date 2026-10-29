@@ -74,6 +74,7 @@ form?.addEventListener('submit', async event => {
   payload.guest_count = Number(payload.guest_count);
   payload.drinking_guest_count = payload.drinking_guest_count ? Number(payload.drinking_guest_count) : null;
   payload.service_hours = Number(payload.service_hours || 5);
+  payload.analytics_session_id = window.CraftEAnalytics?.sessionId || null;
 
   if (payload.drinking_guest_count && payload.drinking_guest_count > payload.guest_count) {
     status.textContent = 'Drinking guests cannot be greater than total guests.';
