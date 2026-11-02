@@ -28,6 +28,24 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 const year = document.getElementById('year');
 if (year) year.textContent = new Date().getFullYear();
 
+const IS_SPANISH = document.documentElement.lang.toLowerCase().startsWith('es');
+const UI = IS_SPANISH ? {
+  included:'Incluido',
+  drinkingError:'Los invitados que beberán no pueden ser más que el total de invitados.',
+  calculatingButton:'Calculando Tu Cotización…',
+  calculatingStatus:'Calculando el tamaño del evento, personal, área de servicio y tus selecciones…',
+  genericQuoteError:'No pudimos calcular tu cotización. Revisa la dirección del evento e inténtalo de nuevo.',
+  submit:'Calcular Mi Cotización'
+} : {
+  included:'Included',
+  drinkingError:'Drinking guests cannot be greater than total guests.',
+  calculatingButton:'Calculating Your Quote…',
+  calculatingStatus:'Calculating event size, staffing, service area and your selections…',
+  genericQuoteError:'We could not calculate your quote. Please check the venue address and try again.',
+  submit:'Calculate My Quote'
+};
+try { localStorage.setItem('crafte_language', IS_SPANISH ? 'es' : 'en'); } catch {}
+
 const SUPABASE_URL = 'https://ozjctdmdwoutsebkjcpn.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_tERnQU70mt-6imXPumOiUg_EDTYsQpH';
 const form = document.getElementById('quoteForm');
@@ -45,7 +63,7 @@ function syncPackageOptions(pkg) {
   document.querySelectorAll('input[name="options"]').forEach(input => {
     input.checked = included.has(input.value);
     const price = document.querySelector('[data-option-price="' + input.value + '"]');
-    if (price) price.textContent = included.has(input.value) ? 'Included' : price.dataset.original || price.textContent;
+    if (price) price.textContent = included.has(input.value) ? UI.included : price.dataset.original || price.textContent;
     if (price && !price.dataset.original) {
       const base = {
         THEMED_STYLING: '+$125',
@@ -77,13 +95,13 @@ form?.addEventListener('submit', async event => {
   payload.analytics_session_id = window.CraftEAnalytics?.sessionId || null;
 
   if (payload.drinking_guest_count && payload.drinking_guest_count > payload.guest_count) {
-    status.textContent = 'Drinking guests cannot be greater than total guests.';
+    status.textContent = UI.drinkingError;
     return;
   }
 
   submitButton.disabled = true;
-  submitButton.textContent = 'Calculating Your Quote…';
-  status.textContent = 'Calculating event size, staffing, service area and your selections…';
+  submitButton.textContent = UI.calculatingButton;
+  status.textContent = UI.calculatingStatus;
 
   try {
     const response = await fetch(SUPABASE_URL + '/functions/v1/create-quote', {
@@ -97,10 +115,10 @@ form?.addEventListener('submit', async event => {
     const result = await response.json();
     if (!response.ok) throw new Error(result.error || 'Unable to create quote.');
 
-    window.location.href = 'quote.html?token=' + encodeURIComponent(result.quote.token);
+    window.location.href = 'quote.html?token=' + encodeURIComponent(result.quote.token) + (IS_SPANISH ? '&lang=es' : '');
   } catch (error) {
-    status.textContent = error.message || 'We could not calculate your quote. Please check the venue address and try again.';
+    status.textContent = IS_SPANISH ? UI.genericQuoteError : (error.message || UI.genericQuoteError);
     submitButton.disabled = false;
-    submitButton.textContent = 'Calculate My Quote';
+    submitButton.textContent = UI.submit;
   }
 });
