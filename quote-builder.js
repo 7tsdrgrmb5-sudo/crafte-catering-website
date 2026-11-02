@@ -25,18 +25,21 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 const year = document.getElementById('year');
 if (year) year.textContent = new Date().getFullYear();
 
-const DEMO_ES = document.documentElement.lang.toLowerCase().startsWith('es');
-const DTXT = DEMO_ES ? {
-  included:'Incluido',
-  drinking:'Los invitados que beberán no pueden ser más que el total de invitados.',
-  calc:'Calculando Tu Cotización…',
-  running:'Ejecutando la simulación privada de cotización…'
-} : {
-  included:'Included',
-  drinking:'Drinking guests cannot be greater than total guests.',
-  calc:'Calculating Your Quote…',
-  running:'Running the private demo quote simulation…'
-};
+function demoIsSpanish(){return document.documentElement.lang.toLowerCase().startsWith('es')}
+function demoText(){
+  return demoIsSpanish()?{
+    included:'Incluido',
+    drinking:'Los invitados que beberán no pueden ser más que el total de invitados.',
+    calc:'Calculando Tu Cotización…',
+    running:'Ejecutando la simulación privada de cotización…'
+  }:{
+    included:'Included',
+    drinking:'Drinking guests cannot be greater than total guests.',
+    calc:'Calculating Your Quote…',
+    running:'Running the private demo quote simulation…'
+  };
+}
+
 const form = document.getElementById('quoteForm');
 const status = document.getElementById('quoteStatus');
 const submitButton = document.getElementById('quoteSubmit');
@@ -67,7 +70,7 @@ function syncPackageOptions(pkg) {
       if (!price.dataset.original) {
         price.dataset.original = optionPrices[input.value] ? '+$' + (optionPrices[input.value].add / 100) : '';
       }
-      price.textContent = included.has(input.value) ? DTXT.included : price.dataset.original;
+      price.textContent = included.has(input.value) ? demoText().included : price.dataset.original;
     }
   });
 }
@@ -100,16 +103,16 @@ form?.addEventListener('submit', event => {
   payload.guest_count = Number(payload.guest_count);
   payload.drinking_guest_count = payload.drinking_guest_count ? Number(payload.drinking_guest_count) : null;
   payload.service_hours = Number(payload.service_hours || 5);
-  payload.language = DEMO_ES ? 'es' : 'en';
+  payload.language = demoIsSpanish() ? 'es' : 'en';
 
   if (payload.drinking_guest_count && payload.drinking_guest_count > payload.guest_count) {
-    status.textContent = DTXT.drinking;
+    status.textContent = demoText().drinking;
     return;
   }
 
   submitButton.disabled = true;
-  submitButton.textContent = DTXT.calc;
-  status.textContent = DTXT.running;
+  submitButton.textContent = demoText().calc;
+  status.textContent = demoText().running;
 
   const pkg = payload.package;
   const selected = new Set(payload.options || []);
@@ -175,5 +178,12 @@ form?.addEventListener('submit', event => {
   };
 
   sessionStorage.setItem('crafte_demo_quote', JSON.stringify(demo));
-  window.location.href = 'demo-quote.html' + (DEMO_ES ? '?lang=es' : '');
+  window.location.href = 'demo-quote.html' + (demoIsSpanish() ? '?lang=es' : '');
+});
+
+window.addEventListener('crafte-language-change',()=>{
+  const selected=document.querySelector('input[name="package"]:checked');
+  if(selected)syncPackageOptions(selected.value);
+  if(submitButton && !submitButton.disabled)submitButton.textContent=demoText().calc.replace('Calculating Your Quote…','Calculate My Quote').replace('Calculando Tu Cotización…','Calcular Mi Cotización');
+  if(status)status.textContent='';
 });
