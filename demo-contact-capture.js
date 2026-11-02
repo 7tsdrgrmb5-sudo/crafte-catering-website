@@ -1,43 +1,47 @@
 (()=>{
   if(!document.body || !document.getElementById('quoteForm')) return;
-  const ES=document.documentElement.lang.toLowerCase().startsWith('es');
-  const T=ES?{
-    demo:'DEMO SOLAMENTE — NADA SE ENVÍA AL CRM REAL',
-    eyebrow:'¿Planeando un evento?',title:'¿Quieres que CraftE se comunique contigo?',
-    copy:'Déjanos tu información y podemos comunicarnos contigo sobre tu evento. Sin presión — también puedes seguir navegando o usar la cotización instantánea cuando quieras.',
-    first:'Nombre',last:'Apellido',phone:'Teléfono',best:'Mejor forma de contactarte',text:'Texto',call:'Llamada',email:'Correo electrónico',
-    event:'Tipo de evento',eventPh:'Cumpleaños, boda, etc.',date:'Fecha del evento (opcional)',
-    anything:'¿Algo que quieras contarnos?',anythingPh:'Cantidad de invitados, ciudad, preguntas o cualquier otro detalle.',
-    consent:'Me gustaría que CraftE Catering se comunique conmigo sobre mi evento.',
-    submit:'Sí, Contáctenme',skip:'No gracias, seguir navegando',
-    need:'Ingresa un correo electrónico o número de teléfono.',
-    sent:'Solicitud Demo Enviada ✓',success:'La solicitud demo se guardó solamente en este navegador. Nada fue enviado a CraftE ni al CRM real.',
-    launcher:'DEMO: Mostrar Pop-Up de Contacto'
-  }:{
-    demo:'DEMO ONLY — NOTHING IS SENT TO THE LIVE CRM',
-    eyebrow:'Planning an event?',title:'Want CraftE to contact you?',
-    copy:"Leave your information and we can follow up about your event. No pressure — you can still browse or use the instant quote whenever you're ready.",
-    first:'First name',last:'Last name',phone:'Phone',best:'Best way to reach you',text:'Text',call:'Call',email:'Email',
-    event:'Event type',eventPh:'Birthday, wedding, etc.',date:'Event date (optional)',
-    anything:"Anything you'd like us to know?",anythingPh:'Guest count, city, questions, or anything else.',
-    consent:"I’d like CraftE Catering to contact me about my event inquiry.",
-    submit:'Yes, Contact Me',skip:'No thanks, keep browsing',
-    need:'Please enter an email or phone number.',
-    sent:'Demo Request Sent ✓',success:'Demo captured locally in this browser. Nothing was sent to CraftE or the live CRM.',
-    launcher:'DEMO: Show Contact Pop-Up'
-  };
+  function demoContactSpanish(){return document.documentElement.lang.toLowerCase().startsWith('es')}
+  function demoContactText(){
+    return demoContactSpanish()?{
+      demo:'DEMO SOLAMENTE — NADA SE ENVÍA AL CRM REAL',
+      eyebrow:'¿Planeando un evento?',title:'¿Quieres que CraftE se comunique contigo?',
+      copy:'Déjanos tu información y podemos comunicarnos contigo sobre tu evento. Sin presión — también puedes seguir navegando o usar la cotización instantánea cuando quieras.',
+      first:'Nombre',last:'Apellido',phone:'Teléfono',best:'Mejor forma de contactarte',text:'Texto',call:'Llamada',email:'Correo electrónico',
+      event:'Tipo de evento',eventPh:'Cumpleaños, boda, etc.',date:'Fecha del evento (opcional)',
+      anything:'¿Algo que quieras contarnos?',anythingPh:'Cantidad de invitados, ciudad, preguntas o cualquier otro detalle.',
+      consent:'Me gustaría que CraftE Catering se comunique conmigo sobre mi evento.',
+      submit:'Sí, Contáctenme',skip:'No gracias, seguir navegando',
+      need:'Ingresa un correo electrónico o número de teléfono.',
+      sent:'Solicitud Demo Enviada ✓',success:'La solicitud demo se guardó solamente en este navegador. Nada fue enviado a CraftE ni al CRM real.',
+      launcher:'DEMO: Mostrar Pop-Up de Contacto'
+    }:{
+      demo:'DEMO ONLY — NOTHING IS SENT TO THE LIVE CRM',
+      eyebrow:'Planning an event?',title:'Want CraftE to contact you?',
+      copy:"Leave your information and we can follow up about your event. No pressure — you can still browse or use the instant quote whenever you're ready.",
+      first:'First name',last:'Last name',phone:'Phone',best:'Best way to reach you',text:'Text',call:'Call',email:'Email',
+      event:'Event type',eventPh:'Birthday, wedding, etc.',date:'Event date (optional)',
+      anything:"Anything you'd like us to know?",anythingPh:'Guest count, city, questions, or anything else.',
+      consent:"I’d like CraftE Catering to contact me about my event inquiry.",
+      submit:'Yes, Contact Me',skip:'No thanks, keep browsing',
+      need:'Please enter an email or phone number.',
+      sent:'Demo Request Sent ✓',success:'Demo captured locally in this browser. Nothing was sent to CraftE or the live CRM.',
+      launcher:'DEMO: Show Contact Pop-Up'
+    };
+  }
+
   const DISMISS='crafte_demo_contact_dismissed';
   let shown=false, clicks=0;
 
   const launcher=document.createElement('button');
   launcher.type='button';
-  launcher.textContent=T.launcher;
-  launcher.setAttribute('aria-label',T.launcher);
+  launcher.textContent=demoContactText().launcher;
+  launcher.setAttribute('aria-label',demoContactText().launcher);
   launcher.style.cssText='position:fixed;right:16px;bottom:16px;z-index:9998;border:1px solid #d4af37;background:#0b0b0b;color:#f1cc75;padding:11px 14px;border-radius:999px;font:700 12px Inter,sans-serif;box-shadow:0 10px 30px rgba(0,0,0,.4);cursor:pointer';
   document.body.appendChild(launcher);
 
   function show(){
     if(shown)return; shown=true;
+    const ES=demoContactSpanish(),T=demoContactText();
     const wrap=document.createElement('div');
     wrap.className='contact-prompt-backdrop';
     wrap.innerHTML=`
@@ -101,7 +105,7 @@
         event_type:String(fd.get('event_type')||'').trim(),
         event_date:String(fd.get('event_date')||'').trim()||null,
         message:String(fd.get('message')||'').trim(),
-        language:ES?'es':'en',
+        language:demoContactSpanish()?'es':'en',
         consent:true,consent_at:new Date().toISOString(),
         session_id:window.CraftEDemoAnalytics?.sessionId||null
       };
@@ -114,6 +118,12 @@
     });
   }
 
+  window.addEventListener('crafte-language-change',()=>{
+    launcher.textContent=demoContactText().launcher;
+    launcher.setAttribute('aria-label',demoContactText().launcher);
+    const existing=document.querySelector('.contact-prompt-backdrop');
+    if(existing){existing.remove();shown=false;show();}
+  });
   launcher.addEventListener('click',show);
   sessionStorage.removeItem(DISMISS);
   setTimeout(show,6000);
