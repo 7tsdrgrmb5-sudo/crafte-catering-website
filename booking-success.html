@@ -4,44 +4,96 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#050505" />
+  <meta name="robots" content="noindex,nofollow,noarchive" />
   <title>Booking Confirmed | CraftE Catering LLC</title>
   <link rel="icon" type="image/png" href="assets/gold_cc_monogram_catering_logo.svg?v=2" />
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css?v=8" />
 </head>
 <body class="quote-page-body">
   <main class="quote-page">
-    <a class="quote-page-brand" href="index.html"><img src="assets/gold_cc_monogram_catering_logo.svg?v=2" alt="CraftE Catering LLC" /></a>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;width:100%">
+      <a class="quote-page-brand" id="homeLink" href="index.html"><img src="assets/gold_cc_monogram_catering_logo.svg?v=2" alt="CraftE Catering LLC" /></a>
+      <div class="language-switch" aria-label="Language">
+        <a id="successLangEn" class="active" href="#">EN</a><span>|</span><a id="successLangEs" href="#">ES</a>
+      </div>
+    </div>
     <section class="client-quote-card booking-success-card">
       <div class="success-mark">✓</div>
       <p class="eyebrow">CraftE Catering</p>
       <h1 id="successTitle">Payment received.</h1>
       <p id="successMessage">We’re confirming your booking now. Your event details are safely in our system.</p>
       <div class="quote-totals" id="bookingSummary"></div>
-      <p class="quote-fine-print">Next, CraftE will finalize your drink menu and event details with you. Your shopping list will be prepared from the final guest count and menu.</p>
-      <a class="btn btn-gold" href="https://www.instagram.com/craftecatering/" target="_blank" rel="noopener">Message @craftecatering</a>
-      <a class="btn btn-ghost" href="index.html">Back to CraftE</a>
+      <p class="quote-fine-print" id="nextSteps">Next, CraftE will finalize your drink menu and event details with you. Your shopping list will be prepared from the final guest count and menu.</p>
+      <a class="btn btn-gold" id="messageLink" href="https://www.instagram.com/craftecatering/" target="_blank" rel="noopener">Message @craftecatering</a>
+      <a class="btn btn-ghost" id="backLink" href="index.html">Back to CraftE</a>
     </section>
   </main>
   <script>
     const SUPABASE_URL='https://ozjctdmdwoutsebkjcpn.supabase.co';
     const KEY='sb_publishable_tERnQU70mt-6imXPumOiUg_EDTYsQpH';
-    const token=new URLSearchParams(location.search).get('token');
-    const money=c=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(c/100);
+    const params=new URLSearchParams(location.search);
+    const token=params.get('token');
+    const lang=params.get('lang')==='es'?'es':'en';
+    const ES=lang==='es';
+    document.documentElement.lang=lang;
+    try{localStorage.setItem('crafte_language',lang)}catch{}
+
+    const T=ES?{
+      title:'Reserva Confirmada | CraftE Catering LLC',
+      received:'Pago recibido.',
+      confirming:'Estamos confirmando tu reserva. Los detalles de tu evento están seguros en nuestro sistema.',
+      booked:'¡Tu evento está reservado!',
+      bookedMsg:'Tu anticipo del 30% ha sido confirmado. Ahora pasaremos a los detalles del evento, planificación del menú y tu lista de compras.',
+      retainer:'Anticipo',balance:'Saldo Restante',
+      next:'Siguiente paso: CraftE finalizará contigo el menú de bebidas y los detalles del evento. Tu lista de compras se preparará según el número final de invitados y el menú.',
+      message:'Mensaje a @craftecatering',back:'Volver a CraftE'
+    }:{
+      title:'Booking Confirmed | CraftE Catering LLC',
+      received:'Payment received.',
+      confirming:'We’re confirming your booking now. Your event details are safely in our system.',
+      booked:'Your event is booked!',
+      bookedMsg:'Your 30% retainer has been confirmed. We’ll move into event details, menu planning and your shopping list next.',
+      retainer:'Retainer',balance:'Remaining Balance',
+      next:'Next, CraftE will finalize your drink menu and event details with you. Your shopping list will be prepared from the final guest count and menu.',
+      message:'Message @craftecatering',back:'Back to CraftE'
+    };
+    document.title=T.title;
+    document.getElementById('successTitle').textContent=T.received;
+    document.getElementById('successMessage').textContent=T.confirming;
+    document.getElementById('nextSteps').textContent=T.next;
+    document.getElementById('messageLink').textContent=T.message;
+    document.getElementById('backLink').textContent=T.back;
+    document.getElementById('backLink').href=ES?'es.html':'index.html';
+    document.getElementById('homeLink').href=ES?'es.html':'index.html';
+
+    const tokenPart=token?'?token='+encodeURIComponent(token):'';
+    document.getElementById('successLangEn').href='booking-success.html'+tokenPart;
+    document.getElementById('successLangEs').href='booking-success.html'+tokenPart+(tokenPart?'&':'?')+'lang=es';
+    document.getElementById('successLangEn').classList.toggle('active',!ES);
+    document.getElementById('successLangEs').classList.toggle('active',ES);
+
+    const money=c=>new Intl.NumberFormat(ES?'es-US':'en-US',{style:'currency',currency:'USD'}).format(c/100);
     async function refresh(){
-      if(!token) return;
-      const res=await fetch(SUPABASE_URL+'/functions/v1/get-quote',{method:'POST',headers:{'Content-Type':'application/json','apikey':KEY},body:JSON.stringify({token})});
+      if(!token)return;
+      const res=await fetch(SUPABASE_URL+'/functions/v1/get-quote',{
+        method:'POST',headers:{'Content-Type':'application/json','apikey':KEY},body:JSON.stringify({token})
+      });
       const data=await res.json();
-      if(!res.ok) return;
+      if(!res.ok)return;
       const q=data.quote;
-      document.getElementById('bookingSummary').innerHTML='<div><span>'+q.number+'</span><strong>'+money(q.total_cents)+'</strong></div><div class="retainer-row"><span>Retainer</span><strong>'+money(q.retainer_cents)+'</strong></div><div><span>Remaining Balance</span><strong>'+money(q.balance_cents)+'</strong></div>';
+      document.getElementById('bookingSummary').innerHTML=
+        '<div><span>'+q.number+'</span><strong>'+money(q.total_cents)+'</strong></div>'+
+        '<div class="retainer-row"><span>'+T.retainer+'</span><strong>'+money(q.retainer_cents)+'</strong></div>'+
+        '<div><span>'+T.balance+'</span><strong>'+money(q.balance_cents)+'</strong></div>';
       if(data.booking?.status==='booked'){
-        document.getElementById('successTitle').textContent='Your event is booked!';
-        document.getElementById('successMessage').textContent='Your 30% retainer has been confirmed. We’ll move into event details, menu planning and your shopping list next.';
-      } else {
+        document.getElementById('successTitle').textContent=T.booked;
+        document.getElementById('successMessage').textContent=T.bookedMsg;
+      }else{
         setTimeout(refresh,2500);
       }
     }
     refresh();
   </script>
-  <script src="analytics.js?v=3"></script>\n</body>
+  <script src="analytics.js?v=3"></script>
+</body>
 </html>
