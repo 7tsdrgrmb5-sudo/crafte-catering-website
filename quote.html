@@ -4,18 +4,24 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#050505" />
+  <meta name="robots" content="noindex,nofollow,noarchive" />
   <title>Your CraftE Quote | CraftE Catering LLC</title>
   <link rel="icon" type="image/png" href="assets/gold_cc_monogram_catering_logo.svg?v=2" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css?v=8" />
 </head>
 <body class="quote-page-body">
   <main class="quote-page">
-    <a class="quote-page-brand" href="index.html"><img src="assets/gold_cc_monogram_catering_logo.svg?v=2" alt="CraftE Catering LLC" /></a>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;width:100%">
+      <a class="quote-page-brand" id="homeLink" href="index.html"><img src="assets/gold_cc_monogram_catering_logo.svg?v=2" alt="CraftE Catering LLC" /></a>
+      <div class="language-switch" aria-label="Language">
+        <a id="quoteLangEn" class="active" href="#">EN</a><span>|</span><a id="quoteLangEs" href="#">ES</a>
+      </div>
+    </div>
     <section class="client-quote-card" id="quoteCard">
-      <p class="eyebrow">Your CraftE Proposal</p>
+      <p class="eyebrow" id="proposalLabel">Your CraftE Proposal</p>
       <h1 id="quoteNumber">Loading your quote…</h1>
       <p id="quoteIntro" class="quote-intro"></p>
       <div id="quoteMeta" class="quote-meta"></div>
@@ -28,12 +34,12 @@
         <button class="btn btn-ghost" id="declineQuote" type="button">Decline Quote</button>
       </div>
       <div id="declinePanel" class="decline-panel" hidden>
-        <label>Optional — what made you decide not to move forward?
+        <label id="declineLabel">Optional — what made you decide not to move forward?
           <textarea id="declineReason" rows="3" placeholder="Price, date, plans changed, etc."></textarea>
         </label>
         <button class="btn btn-ghost" id="confirmDecline" type="button">Confirm Decline</button>
       </div>
-      <p class="quote-fine-print">Accepting your quote takes you to Stripe's secure checkout for the 30% booking retainer. Your date is confirmed after the retainer is successfully paid.</p>
+      <p class="quote-fine-print" id="quoteFinePrint">Accepting your quote takes you to Stripe's secure checkout for the 30% booking retainer. Your date is confirmed after the retainer is successfully paid.</p>
     </section>
   </main>
   <script>
@@ -41,110 +47,214 @@
     const KEY = 'sb_publishable_tERnQU70mt-6imXPumOiUg_EDTYsQpH';
     const params = new URLSearchParams(location.search);
     const token = params.get('token');
-    const demoMode = params.get('demo') === '1';
-    const money = cents => new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(cents/100);
-    const status = document.getElementById('actionStatus');
+    const lang = params.get('lang') === 'es' ? 'es' : 'en';
+    const ES = lang === 'es';
+    document.documentElement.lang = lang;
+    try { localStorage.setItem('crafte_language', lang); } catch {}
 
-    async function callFunction(name, payload) {
-      const res = await fetch(SUPABASE_URL + '/functions/v1/' + name, {
+    const T = ES ? {
+      title:'Tu Cotización CraftE | CraftE Catering LLC',
+      proposal:'Tu Propuesta de CraftE',
+      loading:'Cargando tu cotización…',
+      prepared:'Preparada para ',
+      event:'Evento',date:'Fecha',location:'Ubicación',guests:'Invitados',package:'Paquete',
+      eventTotal:'Total del Evento',retainer:'30% de Anticipo Hoy',balance:'Saldo Restante',
+      validUntil:'Cotización válida hasta ',
+      accept:'Aceptar y Reservar Mi Fecha',decline:'Rechazar Cotización',
+      declinePrompt:'Opcional — ¿qué te hizo decidir no continuar?',
+      declinePlaceholder:'Precio, fecha, cambiaron los planes, etc.',
+      confirmDecline:'Confirmar Rechazo',
+      finePrint:'Al aceptar tu cotización, irás al pago seguro de Stripe para pagar el anticipo del 30%. Tu fecha queda confirmada después de que el anticipo se pague correctamente.',
+      opening:'Abriendo Pago Seguro…',
+      incomplete:'Este enlace de cotización está incompleto.',
+      somethingWrong:'Ocurrió un problema.',
+      unavailable:'El pago seguro no está disponible en este momento.',
+      declined:'Cotización rechazada. Gracias por considerar a CraftE Catering.',
+      alreadyDeclined:'Rechazaste esta cotización. Puedes solicitar una nueva cuando quieras.',
+      expired:'Esta cotización ha vencido. Solicita una nueva cotización.',
+      booked:'✓ Tu anticipo está pagado y tu evento está reservado.',
+      unable:'No se pudo cargar la cotización',
+      demo:'MODO DEMO — NO SE COBRARÁ NINGUNA TARJETA',
+      demoAccept:'Demo: Aceptar y Continuar'
+    } : {
+      title:'Your CraftE Quote | CraftE Catering LLC',
+      proposal:'Your CraftE Proposal',
+      loading:'Loading your quote…',
+      prepared:'Prepared for ',
+      event:'Event',date:'Date',location:'Location',guests:'Guests',package:'Package',
+      eventTotal:'Event Total',retainer:'30% Retainer Due Today',balance:'Remaining Balance',
+      validUntil:'Quote valid until ',
+      accept:'Accept & Reserve My Date',decline:'Decline Quote',
+      declinePrompt:'Optional — what made you decide not to move forward?',
+      declinePlaceholder:'Price, date, plans changed, etc.',
+      confirmDecline:'Confirm Decline',
+      finePrint:"Accepting your quote takes you to Stripe's secure checkout for the 30% booking retainer. Your date is confirmed after the retainer is successfully paid.",
+      opening:'Opening Secure Checkout…',
+      incomplete:'This quote link is incomplete.',
+      somethingWrong:'Something went wrong.',
+      unavailable:'Secure checkout is not available yet.',
+      declined:'Quote declined. Thank you for considering CraftE Catering.',
+      alreadyDeclined:'You declined this quote. You can request a new one anytime.',
+      expired:'This quote has expired. Please request a new quote.',
+      booked:'✓ Your retainer is paid and your event is booked.',
+      unable:'Unable to load quote',
+      demo:'DEMO MODE — NO CARD WILL BE CHARGED',
+      demoAccept:'Demo: Accept & Continue'
+    };
+
+    document.title=T.title;
+    document.getElementById('proposalLabel').textContent=T.proposal;
+    document.getElementById('quoteNumber').textContent=T.loading;
+    document.getElementById('acceptQuote').textContent=T.accept;
+    document.getElementById('declineQuote').textContent=T.decline;
+    document.getElementById('declineLabel').childNodes[0].textContent=T.declinePrompt+' ';
+    document.getElementById('declineReason').placeholder=T.declinePlaceholder;
+    document.getElementById('confirmDecline').textContent=T.confirmDecline;
+    document.getElementById('quoteFinePrint').textContent=T.finePrint;
+    document.getElementById('homeLink').href=ES?'es.html':'index.html';
+    const tokenPart=token?'?token='+encodeURIComponent(token):'';
+    document.getElementById('quoteLangEn').href='quote.html'+tokenPart;
+    document.getElementById('quoteLangEs').href='quote.html'+tokenPart+(tokenPart?'&':'?')+'lang=es';
+    document.getElementById('quoteLangEn').classList.toggle('active',!ES);
+    document.getElementById('quoteLangEs').classList.toggle('active',ES);
+
+    const money = cents => new Intl.NumberFormat(ES?'es-US':'en-US',{style:'currency',currency:'USD'}).format(cents/100);
+    const status = document.getElementById('actionStatus');
+    const esc = v => String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+    const demoMode = params.get('demo') === '1';
+
+    const eventName = value => {
+      if(!ES) return value||'';
+      return ({Wedding:'Boda',Birthday:'Cumpleaños','Quinceañera':'Quinceañera','Private Party':'Fiesta Privada','Corporate Event':'Evento Corporativo','Mocktail Event':'Evento de Mocktails',Other:'Otro'})[value] || value || '';
+    };
+    const packageName = value => {
+      if(!value)return '';
+      if(!ES)return value[0].toUpperCase()+value.slice(1);
+      return ({basic:'Básico',deluxe:'Deluxe',premium:'Premium'})[String(value).toLowerCase()]||value;
+    };
+    function itemDescription(value){
+      if(!ES)return value||'';
+      let s=String(value||'');
+      const exact={
+        'Basic Package':'Paquete Básico',
+        'Deluxe Package':'Paquete Deluxe',
+        'Premium Package':'Paquete Premium',
+        'Event Size Adjustment':'Ajuste por Tamaño del Evento',
+        'Short-Notice Booking':'Reserva con Poca Anticipación',
+        'Extended Service Area Fee':'Cargo por Área de Servicio Extendida',
+        'Extended Service Area':'Área de Servicio Extendida',
+        'Themed Styling & Décor':'Decoración y Estilo Temático',
+        'Themed Styling & Decor':'Decoración y Estilo Temático',
+        'Elevated Garnish Package':'Paquete de Garnishes Premium',
+        'Custom Cocktail Signage':'Señalización Personalizada de Cócteles',
+        'LED Bar Lighting':'Iluminación LED para la Barra',
+        'Dedicated Cocktail Server':'Servidor/a Dedicado/a de Cócteles',
+        'Shot O’Clock Experience':'Experiencia Shot O’Clock',
+        'Dedicated Mocktail Station':'Estación Dedicada de Mocktails'
+      };
+      if(exact[s])return exact[s];
+      s=s.replace(/^Additional Bartenders? × (\d+)$/i,(_,n)=>Number(n)===1?'Bartender Adicional × 1':'Bartenders Adicionales × '+n);
+      if(s.startsWith('Removed: '))s='Eliminado: '+itemDescription(s.slice(9));
+      return s;
+    }
+    function friendlyError(message){
+      if(!ES)return message||T.somethingWrong;
+      const m=String(message||'');
+      if(/expired/i.test(m))return T.expired;
+      if(/not found/i.test(m))return 'No encontramos esta cotización.';
+      if(/already been accepted/i.test(m))return 'Esta cotización ya fue aceptada.';
+      return T.somethingWrong;
+    }
+
+    async function callFunction(name,payload){
+      const res=await fetch(SUPABASE_URL+'/functions/v1/'+name,{
         method:'POST',
         headers:{'Content-Type':'application/json','apikey':KEY},
         body:JSON.stringify(payload)
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Something went wrong.');
+      const data=await res.json();
+      if(!res.ok)throw new Error(friendlyError(data.error));
       return data;
     }
 
-    async function loadQuote() {
-      if (!token) throw new Error('This quote link is incomplete.');
-      const result = await callFunction('get-quote', {token});
-      const q = result.quote;
-      const client = q.client || {};
-      document.getElementById('quoteNumber').textContent = q.number;
-      if (demoMode) {
-        const demoBanner = document.createElement('div');
-        demoBanner.style.cssText = 'margin:0 0 18px;padding:10px 12px;border-radius:10px;background:#d4af37;color:#050505;font-weight:800;text-align:center';
-        demoBanner.textContent = 'DEMO MODE — NO CARD WILL BE CHARGED';
+    async function loadQuote(){
+      if(!token)throw new Error(T.incomplete);
+      const result=await callFunction('get-quote',{token});
+      const q=result.quote;
+      const client=q.client||{};
+      document.getElementById('quoteNumber').textContent=q.number;
+      if(demoMode){
+        const demoBanner=document.createElement('div');
+        demoBanner.style.cssText='margin:0 0 18px;padding:10px 12px;border-radius:10px;background:#d4af37;color:#050505;font-weight:800;text-align:center';
+        demoBanner.textContent=T.demo;
         document.getElementById('quoteCard').prepend(demoBanner);
-        document.getElementById('acceptQuote').textContent = 'Demo: Accept & Continue';
+        document.getElementById('acceptQuote').textContent=T.demoAccept;
       }
-      document.getElementById('quoteIntro').textContent = 'Prepared for ' + [client.first_name,client.last_name].filter(Boolean).join(' ');
-      document.getElementById('quoteMeta').innerHTML = [
-        ['Event', client.event_type],
-        ['Date', client.event_date ? new Date(client.event_date + 'T12:00:00').toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'}) : ''],
-        ['Location', [client.venue_name,client.venue_city,client.venue_state].filter(Boolean).join(' • ')],
-        ['Guests', client.guest_count],
-        ['Package', client.package_interest ? client.package_interest[0].toUpperCase()+client.package_interest.slice(1) : '']
-      ].filter(x=>x[1]).map(x=>'<div><span>'+x[0]+'</span><strong>'+x[1]+'</strong></div>').join('');
+      document.getElementById('quoteIntro').textContent=T.prepared+[client.first_name,client.last_name].filter(Boolean).join(' ');
+      document.getElementById('quoteMeta').innerHTML=[
+        [T.event,eventName(client.event_type)],
+        [T.date,client.event_date?new Date(client.event_date+'T12:00:00').toLocaleDateString(ES?'es-US':undefined,{year:'numeric',month:'long',day:'numeric'}):''],
+        [T.location,[client.venue_name,client.venue_city,client.venue_state].filter(Boolean).join(' • ')],
+        [T.guests,client.guest_count],
+        [T.package,packageName(client.package_interest)]
+      ].filter(x=>x[1]).map(x=>'<div><span>'+esc(x[0])+'</span><strong>'+esc(x[1])+'</strong></div>').join('');
 
-      document.getElementById('quoteItems').innerHTML = q.items.map(item => {
-        const negative = item.line_total_cents < 0;
-        return '<div class="quote-line"><span>'+item.description+'</span><strong class="'+(negative?'credit':'')+'">'+money(item.line_total_cents)+'</strong></div>';
+      document.getElementById('quoteItems').innerHTML=(q.items||[]).map(item=>{
+        const negative=item.line_total_cents<0;
+        return '<div class="quote-line"><span>'+esc(itemDescription(item.description))+'</span><strong class="'+(negative?'credit':'')+'">'+money(item.line_total_cents)+'</strong></div>';
       }).join('');
 
-      document.getElementById('quoteTotals').innerHTML =
-        '<div><span>Event Total</span><strong>'+money(q.total_cents)+'</strong></div>' +
-        '<div class="retainer-row"><span>30% Retainer Due Today</span><strong>'+money(q.retainer_cents)+'</strong></div>' +
-        '<div><span>Remaining Balance</span><strong>'+money(q.balance_cents)+'</strong></div>';
+      document.getElementById('quoteTotals').innerHTML=
+        '<div><span>'+esc(T.eventTotal)+'</span><strong>'+money(q.total_cents)+'</strong></div>'+
+        '<div class="retainer-row"><span>'+esc(T.retainer)+'</span><strong>'+money(q.retainer_cents)+'</strong></div>'+
+        '<div><span>'+esc(T.balance)+'</span><strong>'+money(q.balance_cents)+'</strong></div>';
 
-      document.getElementById('quoteExpiry').textContent = q.expires_at ? 'Quote valid until ' + new Date(q.expires_at).toLocaleString() : '';
+      document.getElementById('quoteExpiry').textContent=q.expires_at?T.validUntil+new Date(q.expires_at).toLocaleString(ES?'es-US':undefined):'';
 
-      const actions = document.getElementById('quoteActions');
-      if (q.status === 'declined') {
-        actions.hidden = true;
-        status.textContent = 'You declined this quote. You can request a new one anytime.';
-      } else if (q.status === 'expired') {
-        actions.hidden = true;
-        status.textContent = 'This quote has expired. Please request a new quote.';
-      } else if (result.booking?.status === 'booked') {
-        actions.hidden = true;
-        status.textContent = '✓ Your retainer is paid and your event is booked.';
-      }
+      const actions=document.getElementById('quoteActions');
+      if(q.status==='declined'){actions.hidden=true;status.textContent=T.alreadyDeclined}
+      else if(q.status==='expired'){actions.hidden=true;status.textContent=T.expired}
+      else if(result.booking?.status==='booked'){actions.hidden=true;status.textContent=T.booked}
     }
 
-    document.getElementById('acceptQuote').addEventListener('click', async () => {
-      const button = document.getElementById('acceptQuote');
-      button.disabled = true;
-      button.textContent = 'Opening Secure Checkout…';
-      status.textContent = '';
-      try {
-        if (demoMode) {
-          location.href = 'demo-checkout.html?token=' + encodeURIComponent(token);
+    document.getElementById('acceptQuote').addEventListener('click',async()=>{
+      const button=document.getElementById('acceptQuote');
+      button.disabled=true;button.textContent=T.opening;status.textContent='';
+      try{
+        if(demoMode){
+          location.href='demo-checkout.html?token='+encodeURIComponent(token)+(ES?'&lang=es':'');
           return;
         }
-        const result = await callFunction('quote-action', {token,action:'accept'});
-        if (result.already_paid) {
-          location.href = 'booking-success.html?token=' + encodeURIComponent(token);
+        const result=await callFunction('quote-action',{token,action:'accept',language:lang});
+        if(result.already_paid){
+          location.href='booking-success.html?token='+encodeURIComponent(token)+(ES?'&lang=es':'');
           return;
         }
-        if (!result.checkout_url) throw new Error('Secure checkout is not available yet.');
-        location.href = result.checkout_url;
-      } catch (e) {
-        status.textContent = e.message;
-        button.disabled = false;
-        button.textContent = 'Accept & Reserve My Date';
+        if(!result.checkout_url)throw new Error(T.unavailable);
+        location.href=result.checkout_url;
+      }catch(e){
+        status.textContent=e.message||T.somethingWrong;
+        button.disabled=false;button.textContent=T.accept;
       }
     });
 
-    document.getElementById('declineQuote').addEventListener('click', () => {
-      document.getElementById('declinePanel').hidden = false;
+    document.getElementById('declineQuote').addEventListener('click',()=>{document.getElementById('declinePanel').hidden=false});
+
+    document.getElementById('confirmDecline').addEventListener('click',async()=>{
+      try{
+        await callFunction('quote-action',{token,action:'decline',reason:document.getElementById('declineReason').value,language:lang});
+        document.getElementById('quoteActions').hidden=true;
+        document.getElementById('declinePanel').hidden=true;
+        status.textContent=T.declined;
+      }catch(e){status.textContent=e.message||T.somethingWrong}
     });
 
-    document.getElementById('confirmDecline').addEventListener('click', async () => {
-      try {
-        await callFunction('quote-action', {token,action:'decline',reason:document.getElementById('declineReason').value});
-        document.getElementById('quoteActions').hidden = true;
-        document.getElementById('declinePanel').hidden = true;
-        status.textContent = 'Quote declined. Thank you for considering CraftE Catering.';
-      } catch (e) { status.textContent = e.message; }
-    });
-
-    loadQuote().catch(e => {
-      document.getElementById('quoteNumber').textContent = 'Unable to load quote';
-      status.textContent = e.message;
-      document.getElementById('quoteActions').hidden = true;
+    loadQuote().catch(e=>{
+      document.getElementById('quoteNumber').textContent=T.unable;
+      status.textContent=e.message||T.somethingWrong;
+      document.getElementById('quoteActions').hidden=true;
     });
   </script>
-  <script src="analytics.js?v=3"></script>\n</body>
+  <script src="analytics.js?v=3"></script>
+</body>
 </html>
