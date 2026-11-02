@@ -4,35 +4,77 @@
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow,noarchive"><meta name="theme-color" content="#050505">
 <title>Demo Quote | CraftE Catering LLC</title>
-<link rel="stylesheet" href="styles.css?v=7">
+<link rel="stylesheet" href="styles.css?v=8">
 </head>
 <body class="quote-page-body">
 <main class="quote-page">
-<a class="quote-page-brand" href="quote-beta-4f8a21.html"><img src="assets/gold_cc_monogram_catering_logo.svg?v=2" alt="CraftE Catering LLC"></a>
+<div style="display:flex;align-items:center;justify-content:space-between;gap:16px;width:100%">
+<a class="quote-page-brand" id="demoHome" href="quote-beta-4f8a21.html"><img src="assets/gold_cc_monogram_catering_logo.svg?v=2" alt="CraftE Catering LLC"></a>
+<div class="language-switch"><a id="demoEn" href="#">EN</a><span>|</span><a id="demoEs" href="#">ES</a></div>
+</div>
 <section class="client-quote-card" id="quoteCard">
-<div style="margin:0 0 18px;padding:10px 12px;border-radius:10px;background:#d4af37;color:#050505;font-weight:900;text-align:center">DEMO MODE — NO CRM RECORD / NO CHARGE</div>
-<p class="eyebrow">Your CraftE Proposal</p><h1 id="quoteNumber">Demo Quote</h1><p id="quoteIntro" class="quote-intro"></p>
+<div id="demoBanner" style="margin:0 0 18px;padding:10px 12px;border-radius:10px;background:#d4af37;color:#050505;font-weight:900;text-align:center"></div>
+<p class="eyebrow" id="proposalLabel"></p><h1 id="quoteNumber">Demo Quote</h1><p id="quoteIntro" class="quote-intro"></p>
 <div id="quoteMeta" class="quote-meta"></div><div id="quoteItems" class="quote-line-items"></div>
 <div class="quote-totals" id="quoteTotals"></div><div class="quote-expiry" id="quoteExpiry"></div>
-<div class="quote-actions"><button class="btn btn-gold" id="acceptQuote" type="button">Demo: Accept & Reserve My Date</button><button class="btn btn-ghost" id="declineQuote" type="button">Decline Quote</button></div>
-<p class="quote-fine-print">This is a private simulation. Nothing on this page is written to the live CraftE CRM and no payment will be processed.</p>
+<div class="quote-actions"><button class="btn btn-gold" id="acceptQuote" type="button"></button><button class="btn btn-ghost" id="declineQuote" type="button"></button></div>
+<p class="quote-fine-print" id="finePrint"></p>
 </section></main>
 <script>
 const q=JSON.parse(sessionStorage.getItem('crafte_demo_quote')||'null');
-const money=c=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(c/100);
-if(!q){location.href='quote-beta-4f8a21.html#quote'}else{
+const params=new URLSearchParams(location.search);
+const lang=params.get('lang')==='es'||q?.payload?.language==='es'?'es':'en';
+const ES=lang==='es';document.documentElement.lang=lang;
+const T=ES?{
+ banner:'MODO DEMO — SIN REGISTRO EN CRM / SIN COBRO',proposal:'Tu Propuesta de CraftE',prepared:'Preparada para ',
+ event:'Evento',date:'Fecha',location:'Ubicación',guests:'Invitados',package:'Paquete',
+ total:'Total del Evento',retainer:'30% de Anticipo Hoy',balance:'Saldo Restante',
+ expiry:'Cotización demo válida por 72 horas',accept:'Demo: Aceptar y Reservar Mi Fecha',decline:'Rechazar Cotización',
+ fine:'Esta es una simulación privada. Nada en esta página se guarda en el CRM real de CraftE y no se procesará ningún pago.',
+ declined:'Cotización demo rechazada — no se creó ningún registro en el CRM.'
+}:{banner:'DEMO MODE — NO CRM RECORD / NO CHARGE',proposal:'Your CraftE Proposal',prepared:'Prepared for ',
+ event:'Event',date:'Date',location:'Location',guests:'Guests',package:'Package',
+ total:'Event Total',retainer:'30% Retainer Due Today',balance:'Remaining Balance',
+ expiry:'Demo quote valid for 72 hours',accept:'Demo: Accept & Reserve My Date',decline:'Decline Quote',
+ fine:'This is a private simulation. Nothing on this page is written to the live CraftE CRM and no payment will be processed.',
+ declined:'Demo quote declined — no CRM record was created.'};
+const money=c=>new Intl.NumberFormat(ES?'es-US':'en-US',{style:'currency',currency:'USD'}).format(c/100);
+const esc=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+const eventName=v=>ES?({Wedding:'Boda',Birthday:'Cumpleaños','Quinceañera':'Quinceañera','Private Party':'Fiesta Privada','Corporate Event':'Evento Corporativo','Mocktail Event':'Evento de Mocktails',Other:'Otro'})[v]||v:v;
+const packageName=v=>ES?({basic:'Básico',deluxe:'Deluxe',premium:'Premium'})[String(v||'').toLowerCase()]||v:(v?v[0].toUpperCase()+v.slice(1):'');
+function desc(v){
+ if(!ES)return v;
+ let s=String(v||'');
+ const m={'Basic Package':'Paquete Básico','Deluxe Package':'Paquete Deluxe','Premium Package':'Paquete Premium','Event Size Adjustment':'Ajuste por Tamaño del Evento','Extended Service Area Fee':'Cargo por Área de Servicio Extendida','Short-Notice Booking':'Reserva con Poca Anticipación','Themed styling & décor':'Decoración y estilo temático','Elevated garnish package':'Paquete de garnishes premium','Custom cocktail signage':'Señalización personalizada de cócteles','LED bar lighting':'Iluminación LED para la barra','Dedicated cocktail server':'Servidor/a dedicado/a de cócteles',"Shot O'Clock experience":'Experiencia Shot O’Clock','Dedicated mocktail station':'Estación dedicada de mocktails'};
+ if(m[s])return m[s];
+ s=s.replace(/^Additional Bartenders? × (\d+)$/i,(_,n)=>Number(n)===1?'Bartender Adicional × 1':'Bartenders Adicionales × '+n);
+ if(s.startsWith('Removed: '))s='Eliminado: '+desc(s.slice(9));
+ return s;
+}
+document.getElementById('demoBanner').textContent=T.banner;
+document.getElementById('proposalLabel').textContent=T.proposal;
+document.getElementById('acceptQuote').textContent=T.accept;
+document.getElementById('declineQuote').textContent=T.decline;
+document.getElementById('finePrint').textContent=T.fine;
+document.getElementById('demoHome').href=ES?'quote-beta-4f8a21-es.html':'quote-beta-4f8a21.html';
+document.getElementById('demoEn').href='demo-quote.html';
+document.getElementById('demoEs').href='demo-quote.html?lang=es';
+document.getElementById('demoEn').classList.toggle('active',!ES);
+document.getElementById('demoEs').classList.toggle('active',ES);
+if(!q){location.href=(ES?'quote-beta-4f8a21-es.html':'quote-beta-4f8a21.html')+'#quote'}else{
  const p=q.payload||{};
  document.getElementById('quoteNumber').textContent=q.number;
- document.getElementById('quoteIntro').textContent='Prepared for '+[p.first_name,p.last_name].filter(Boolean).join(' ');
+ document.getElementById('quoteIntro').textContent=T.prepared+[p.first_name,p.last_name].filter(Boolean).join(' ');
  document.getElementById('quoteMeta').innerHTML=[
- ['Event',p.event_type],['Date',p.event_date?new Date(p.event_date+'T12:00:00').toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'}):''],
- ['Location',[p.venue_name,p.venue_city,p.venue_state].filter(Boolean).join(' • ')],['Guests',p.guest_count],['Package',p.package?p.package[0].toUpperCase()+p.package.slice(1):'']
- ].filter(x=>x[1]).map(x=>'<div><span>'+x[0]+'</span><strong>'+x[1]+'</strong></div>').join('');
- document.getElementById('quoteItems').innerHTML=q.items.map(i=>'<div class="quote-line"><span>'+i.description+'</span><strong class="'+(i.amount<0?'credit':'')+'">'+money(i.amount)+'</strong></div>').join('');
- document.getElementById('quoteTotals').innerHTML='<div><span>Event Total</span><strong>'+money(q.total_cents)+'</strong></div><div class="retainer-row"><span>30% Retainer Due Today</span><strong>'+money(q.retainer_cents)+'</strong></div><div><span>Remaining Balance</span><strong>'+money(q.balance_cents)+'</strong></div>';
- document.getElementById('quoteExpiry').textContent='Demo quote valid for 72 hours';
+ [T.event,eventName(p.event_type)],[T.date,p.event_date?new Date(p.event_date+'T12:00:00').toLocaleDateString(ES?'es-US':undefined,{year:'numeric',month:'long',day:'numeric'}):''],
+ [T.location,[p.venue_name,p.venue_city,p.venue_state].filter(Boolean).join(' • ')],[T.guests,p.guest_count],[T.package,packageName(p.package)]
+ ].filter(x=>x[1]).map(x=>'<div><span>'+esc(x[0])+'</span><strong>'+esc(x[1])+'</strong></div>').join('');
+ document.getElementById('quoteItems').innerHTML=q.items.map(i=>'<div class="quote-line"><span>'+esc(desc(i.description))+'</span><strong class="'+(i.amount<0?'credit':'')+'">'+money(i.amount)+'</strong></div>').join('');
+ document.getElementById('quoteTotals').innerHTML='<div><span>'+T.total+'</span><strong>'+money(q.total_cents)+'</strong></div><div class="retainer-row"><span>'+T.retainer+'</span><strong>'+money(q.retainer_cents)+'</strong></div><div><span>'+T.balance+'</span><strong>'+money(q.balance_cents)+'</strong></div>';
+ document.getElementById('quoteExpiry').textContent=T.expiry;
 }
-document.getElementById('acceptQuote').onclick=()=>location.href='demo-checkout.html';
-document.getElementById('declineQuote').onclick=()=>{alert('Demo quote declined — no CRM record was created.');location.href='quote-beta-4f8a21.html#quote'};
+document.getElementById('acceptQuote').onclick=()=>location.href='demo-checkout.html'+(ES?'?lang=es':'');
+document.getElementById('declineQuote').onclick=()=>{alert(T.declined);location.href=(ES?'quote-beta-4f8a21-es.html':'quote-beta-4f8a21.html')+'#quote'};
 </script>
-<script src="demo-analytics.js?v=1"></script>\n</body></html>
+<script src="demo-analytics.js?v=1"></script>
+</body></html>
