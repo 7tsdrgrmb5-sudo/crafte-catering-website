@@ -315,6 +315,7 @@ function openContactRequest(id){
       <div class="detail-box"><span>Email</span><strong>${esc(r.email||'—')}</strong></div>
       <div class="detail-box"><span>Phone</span><strong>${esc(r.phone||'—')}</strong></div>
       <div class="detail-box"><span>Preferred Contact</span><strong>${esc(r.preferred_contact)}</strong></div>
+      <div class="detail-box"><span>Language</span><strong>${r.language==='es'?'Spanish':'English'}</strong></div>
       <div class="detail-box"><span>Event</span><strong>${esc(r.event_type||'—')}</strong></div>
       <div class="detail-box"><span>Event Date</span><strong>${fmtDate(r.event_date)}</strong></div>
       <div class="detail-box"><span>Status</span><strong>${esc(r.status)}</strong></div>
@@ -393,7 +394,7 @@ function closeDrawer(){
 function openLead(id){
   const l=state.leads.find(x=>x.id===id);if(!l)return;
   const q=quoteForLead(id),b=bookingForLead(id),items=q?state.quoteItems.filter(i=>i.quote_id===q.id):[];
-  const quoteLink=q?SITE_BASE+'/quote.html?token='+q.public_token:'';
+  const quoteLink=q?SITE_BASE+'/quote.html?token='+q.public_token+(l.preferred_language==='es'?'&lang=es':''):'';
   const visit=state.visitorSessions.find(s=>s.lead_id===l.id);
   const journey=visit?state.visitorEvents.filter(e=>e.session_id===visit.id).sort((a,b)=>new Date(a.created_at)-new Date(b.created_at)):[];
   const html=`
@@ -405,6 +406,7 @@ function openLead(id){
       <div class="detail-box"><span>Venue</span><strong>${esc([l.venue_name,l.venue_city,l.venue_state].filter(Boolean).join(' • '))}</strong></div>
       <div class="detail-box"><span>Guests</span><strong>${esc(l.guest_count||'—')} total / ${esc(l.drinking_guest_count??'—')} drinking</strong></div>
       <div class="detail-box"><span>Package</span><strong>${esc(l.package_interest||'—')}</strong></div>
+      <div class="detail-box"><span>Language</span><strong>${l.preferred_language==='es'?'Spanish':'English'}</strong></div>
       <div class="detail-box"><span>Source</span><strong>${esc(visit?.source||l.source||'website')}</strong></div>
       <div class="detail-box"><span>Status</span><strong>${esc(l.status.replaceAll('_',' '))}</strong></div>
     </div>
