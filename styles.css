@@ -368,3 +368,9 @@ details p { color: #a29b91; padding-right: 55px; margin-bottom: 0; }
 .contact-prompt-skip{border:0;background:transparent;color:#aaa;text-decoration:underline;cursor:pointer;padding:5px}
 .contact-honeypot{position:absolute!important;left:-10000px!important;width:1px!important;height:1px!important;opacity:0!important}
 @media(max-width:640px){.contact-prompt-card{padding:22px 18px}.contact-prompt-grid{grid-template-columns:1fr}}
+
+.language-switch{display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid rgba(214,168,74,.28);border-radius:999px;background:rgba(214,168,74,.04);font-size:.78rem;font-weight:800;letter-spacing:.06em}
+.language-switch a{color:#9f988f!important}
+.language-switch a.active{color:var(--gold-bright)!important}
+.language-switch span{color:#625846}
+@media(max-width:900px){.language-switch{align-self:flex-start;margin:4px 0 8px}}
