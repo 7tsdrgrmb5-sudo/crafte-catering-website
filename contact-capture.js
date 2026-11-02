@@ -3,32 +3,34 @@
   const K='sb_publishable_tERnQU70mt-6imXPumOiUg_EDTYsQpH';
   const DISMISS_KEY='crafte_contact_prompt_dismissed';
   const SUBMIT_KEY='crafte_contact_prompt_submitted';
-  const ES=document.documentElement.lang.toLowerCase().startsWith('es');
-  const T=ES?{
-    eyebrow:'¿Planeando un evento?',
-    title:'¿Quieres que CraftE se comunique contigo?',
-    copy:'Déjanos tu información y podemos comunicarnos contigo sobre tu evento. Sin presión — también puedes seguir navegando o usar la cotización instantánea cuando quieras.',
-    first:'Nombre',last:'Apellido',phone:'Teléfono',best:'Mejor forma de contactarte',
-    text:'Texto',call:'Llamada',email:'Correo electrónico',event:'Tipo de evento',
-    eventPh:'Cumpleaños, boda, etc.',date:'Fecha del evento (opcional)',
-    anything:'¿Algo que quieras contarnos?',anythingPh:'Cantidad de invitados, ciudad, preguntas o cualquier otro detalle.',
-    consent:'Me gustaría que CraftE Catering se comunique conmigo sobre mi evento.',
-    submit:'Sí, Contáctenme',skip:'No gracias, seguir navegando',
-    needContact:'Ingresa un correo electrónico o número de teléfono.',
-    sending:'Enviando…',success:'¡Gracias! CraftE recibió tu solicitud y puede comunicarse contigo sobre tu evento.',
-    sent:'Solicitud Enviada ✓',failure:'No pudimos enviar tu solicitud.'
-  }:{
-    eyebrow:'Planning an event?',title:'Want CraftE to contact you?',
-    copy:"Leave your information and we can follow up about your event. No pressure — you can still browse or use the instant quote whenever you're ready.",
-    first:'First name',last:'Last name',phone:'Phone',best:'Best way to reach you',
-    text:'Text',call:'Call',email:'Email',event:'Event type',eventPh:'Birthday, wedding, etc.',
-    date:'Event date (optional)',anything:"Anything you'd like us to know?",anythingPh:'Guest count, city, questions, or anything else.',
-    consent:"I’d like CraftE Catering to contact me about my event inquiry.",
-    submit:'Yes, Contact Me',skip:'No thanks, keep browsing',
-    needContact:'Please enter an email or phone number.',sending:'Sending…',
-    success:'Thank you! CraftE received your request and can follow up about your event.',
-    sent:'Request Sent ✓',failure:'Unable to send your request.'
-  };
+  function isSpanish(){return document.documentElement.lang.toLowerCase().startsWith('es')}
+  function t(){
+    return isSpanish()?{
+      eyebrow:'¿Planeando un evento?',
+      title:'¿Quieres que CraftE se comunique contigo?',
+      copy:'Déjanos tu información y podemos comunicarnos contigo sobre tu evento. Sin presión — también puedes seguir navegando o usar la cotización instantánea cuando quieras.',
+      first:'Nombre',last:'Apellido',phone:'Teléfono',best:'Mejor forma de contactarte',
+      text:'Texto',call:'Llamada',email:'Correo electrónico',event:'Tipo de evento',
+      eventPh:'Cumpleaños, boda, etc.',date:'Fecha del evento (opcional)',
+      anything:'¿Algo que quieras contarnos?',anythingPh:'Cantidad de invitados, ciudad, preguntas o cualquier otro detalle.',
+      consent:'Me gustaría que CraftE Catering se comunique conmigo sobre mi evento.',
+      submit:'Sí, Contáctenme',skip:'No gracias, seguir navegando',
+      needContact:'Ingresa un correo electrónico o número de teléfono.',
+      sending:'Enviando…',success:'¡Gracias! CraftE recibió tu solicitud y puede comunicarse contigo sobre tu evento.',
+      sent:'Solicitud Enviada ✓',failure:'No pudimos enviar tu solicitud.'
+    }:{
+      eyebrow:'Planning an event?',title:'Want CraftE to contact you?',
+      copy:"Leave your information and we can follow up about your event. No pressure — you can still browse or use the instant quote whenever you're ready.",
+      first:'First name',last:'Last name',phone:'Phone',best:'Best way to reach you',
+      text:'Text',call:'Call',email:'Email',event:'Event type',eventPh:'Birthday, wedding, etc.',
+      date:'Event date (optional)',anything:"Anything you'd like us to know?",anythingPh:'Guest count, city, questions, or anything else.',
+      consent:"I’d like CraftE Catering to contact me about my event inquiry.",
+      submit:'Yes, Contact Me',skip:'No thanks, keep browsing',
+      needContact:'Please enter an email or phone number.',sending:'Sending…',
+      success:'Thank you! CraftE received your request and can follow up about your event.',
+      sent:'Request Sent ✓',failure:'Unable to send your request.'
+    };
+  }
 
   const now=Date.now();
   const dismissed=Number(localStorage.getItem(DISMISS_KEY)||0);
@@ -38,6 +40,7 @@
   let clickCount=0, shown=false;
   function show(){
     if(shown)return; shown=true;
+    const ES=isSpanish(),T=t();
     const wrap=document.createElement('div');
     wrap.className='contact-prompt-backdrop';
     wrap.innerHTML=`
@@ -106,7 +109,7 @@
         message:String(fd.get('message')||'').trim(),
         consent:fd.get('consent')==='on',
         website:String(fd.get('website')||''),
-        language:ES?'es':'en'
+        language:isSpanish()?'es':'en'
       };
       try{
         const r=await fetch(U+'/functions/v1/capture-contact',{
@@ -118,7 +121,7 @@
         localStorage.setItem(SUBMIT_KEY,String(Date.now()));
         status.textContent=T.success;
         button.textContent=T.sent;
-        window.CraftEAnalytics?.send?.('contact_requested',{label:ES?'Solicitó contacto de CraftE':'Requested CraftE follow-up',metadata:{language:ES?'es':'en'}});
+        window.CraftEAnalytics?.send?.('contact_requested',{label:isSpanish()?'Solicitó contacto de CraftE':'Requested CraftE follow-up',metadata:{language:isSpanish()?'es':'en'}});
         setTimeout(()=>{wrap.classList.remove('open');setTimeout(()=>wrap.remove(),200)},1800);
       }catch(err){
         status.textContent=T.failure;
@@ -127,6 +130,10 @@
     });
   }
 
+  window.addEventListener('crafte-language-change',()=>{
+    const existing=document.querySelector('.contact-prompt-backdrop');
+    if(existing){existing.remove();shown=false;show();}
+  });
   setTimeout(show,20000);
   document.addEventListener('click',e=>{
     if(shown)return;
