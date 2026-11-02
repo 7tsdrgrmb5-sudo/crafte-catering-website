@@ -93,6 +93,7 @@ form?.addEventListener('submit', async event => {
   payload.drinking_guest_count = payload.drinking_guest_count ? Number(payload.drinking_guest_count) : null;
   payload.service_hours = Number(payload.service_hours || 5);
   payload.analytics_session_id = window.CraftEAnalytics?.sessionId || null;
+  payload.language = IS_SPANISH ? 'es' : 'en';
 
   if (payload.drinking_guest_count && payload.drinking_guest_count > payload.guest_count) {
     status.textContent = UI.drinkingError;
