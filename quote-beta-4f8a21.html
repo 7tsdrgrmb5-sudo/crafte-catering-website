@@ -54,6 +54,15 @@
     .demo-upgrade-price{color:#d4af37;font-weight:700;font-size:.84rem}
     .demo-included{margin-top:14px;padding:13px;border-radius:12px;border:1px solid rgba(212,175,55,.18);background:rgba(212,175,55,.045);color:#bdb5aa;font-size:.84rem;line-height:1.55}
     .demo-travel-result{margin-top:10px;min-height:24px;color:#c8c0b5;font-size:.86rem}
+    .demo-address-wrap{position:relative}
+    .demo-address-suggestions{position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:60;border:1px solid rgba(212,175,55,.34);border-radius:14px;background:#0a0a0a;box-shadow:0 18px 45px rgba(0,0,0,.48);overflow:hidden;display:none}
+    .demo-address-suggestions.open{display:block}
+    .demo-address-suggestion{display:block;width:100%;border:0;border-bottom:1px solid rgba(255,255,255,.07);background:transparent;color:#f4eee4;text-align:left;padding:13px 14px;cursor:pointer;font:inherit}
+    .demo-address-suggestion:last-child{border-bottom:0}
+    .demo-address-suggestion:hover,.demo-address-suggestion:focus{background:rgba(212,175,55,.09);outline:none}
+    .demo-address-suggestion strong{display:block;font-size:.9rem}
+    .demo-address-suggestion small{display:block;margin-top:3px;color:#8f887f;font-size:.74rem}
+    .demo-address-message{padding:13px 14px;color:#8f887f;font-size:.82rem}
     .demo-summary{position:sticky;top:102px;border:1px solid rgba(212,175,55,.32);border-radius:20px;background:linear-gradient(165deg,#161109,#090909 65%);padding:24px;box-shadow:0 20px 55px rgba(0,0,0,.38)}
     .demo-summary-label{margin:0;color:#8f887f;text-transform:uppercase;letter-spacing:.12em;font-size:.7rem}
     .demo-total{font-family:"Cormorant Garamond",serif;font-size:4.2rem;line-height:.95;color:#f6df93;margin:5px 0 2px}
@@ -253,6 +262,7 @@
               <li>Premium bar presentation</li>
               <li>Themed styling & décor</li>
               <li>Elevated garnishes</li>
+              <li>Shot O’Clock experience</li>
               <li>Customized cocktail/mocktail menu</li>
             </ul>
             <a href="#quote" class="text-link">Request Deluxe →</a>
@@ -402,8 +412,11 @@
                 <label>Event date<input required name="event_date" type="date" /></label>
                 <label>Event type<select required name="event_type"><option value="">Select one</option><option>Wedding</option><option>Birthday</option><option>Quinceañera</option><option>Private Party</option><option>Corporate Event</option><option>Other</option></select></label>
               </div>
-              <label>Venue address<input required name="venue_address" type="text" autocomplete="street-address" placeholder="Street address, city, CA" /></label>
-              <p class="demo-travel-result" id="demoTravelResult">Enter the venue address and the service-area fee will adjust automatically.</p>
+              <div class="demo-address-wrap">
+                <label>Venue address<input required name="venue_address" id="demoAddressInput" type="text" autocomplete="off" placeholder="Start typing a street address" aria-autocomplete="list" aria-controls="demoAddressSuggestions" aria-expanded="false" /></label>
+                <div class="demo-address-suggestions" id="demoAddressSuggestions" role="listbox" aria-label="Address suggestions"></div>
+              </div>
+              <p class="demo-travel-result" id="demoTravelResult">Start typing your house number and street, then choose an address from the suggestions.</p>
             </div>
 
             <div class="demo-panel">
@@ -413,7 +426,7 @@
               <div class="demo-slider-head">
                 <div>
                   <label for="guestSlider">Guest count</label>
-                  <p class="demo-panel-copy" style="margin:4px 0 0">First 50 guests are included. Additional guests scale gradually.</p>
+                  <p class="demo-panel-copy" style="margin:4px 0 0">First 50 guests are included. Larger events get only a modest supply/service adjustment while staffing handles the main labor increase.</p>
                 </div>
                 <div class="demo-slider-value" id="guestDisplay">50 guests</div>
               </div>
@@ -442,7 +455,7 @@
               <p class="demo-panel-copy">Package changes update the quote immediately and automatically account for features already included.</p>
               <div class="demo-package-grid">
                 <label class="demo-package-option"><input required type="radio" name="package" value="basic" checked /><span><strong>Basic — $450</strong><small>Professional bartending, portable bar, bar tools, standard disposables, cocktail signage and a customized menu of up to 5 featured drinks.</small></span></label>
-                <label class="demo-package-option"><input required type="radio" name="package" value="deluxe" /><span><strong>Deluxe — $700</strong><small>Basic plus themed styling, elevated garnish presentation and LED bar lighting.</small></span></label>
+                <label class="demo-package-option"><input required type="radio" name="package" value="deluxe" /><span><strong>Deluxe — $700</strong><small>Basic plus themed styling, elevated garnish presentation, LED bar lighting and Shot O’Clock included.</small></span></label>
                 <label class="demo-package-option"><input required type="radio" name="package" value="premium" /><span><strong>Premium — $950</strong><small>Deluxe plus dedicated cocktail server, Shot O’Clock and up to 3 included bartenders.</small></span></label>
               </div>
               <div class="demo-included"><strong>Always included:</strong> cocktail signage and up to 5 featured drinks. Those 5 can later be customized as cocktails, mocktails, or a mix of both at no additional charge.</div>
@@ -520,6 +533,6 @@
   <script src="language.js?v=2"></script>
   <script src="demo-analytics.js?v=1"></script>
   <script src="demo-contact-capture.js?v=3"></script>
-  <script src="quote-builder.js?v=5"></script>
+  <script src="quote-builder.js?v=6"></script>
 </body>
 </html>
