@@ -47,7 +47,7 @@ const packageBase = { basic: 45000, deluxe: 70000, premium: 95000 };
 const includedBartenders = { basic: 2, deluxe: 2, premium: 3 };
 const includedByPackage = {
   basic: [],
-  deluxe: ['THEMED_STYLING', 'ELEVATED_GARNISH', 'LED_LIGHTING'],
+  deluxe: ['THEMED_STYLING', 'ELEVATED_GARNISH', 'LED_LIGHTING', 'SHOT_OCLOCK'],
   premium: ['THEMED_STYLING', 'ELEVATED_GARNISH', 'LED_LIGHTING', 'COCKTAIL_SERVER', 'SHOT_OCLOCK']
 };
 const optionPrices = {
@@ -58,16 +58,15 @@ const optionPrices = {
   SHOT_OCLOCK: { name: "Shot O'Clock experience", add: 10000 }
 };
 
-const demoCities = [
-  ['bellflower', 0], ['cerritos', 8], ['artesia', 7], ['norwalk', 8], ['downey', 10], ['lakewood', 8],
-  ['long beach', 14], ['whittier', 17], ['compton', 14], ['carson', 18], ['torrance', 24],
-  ['buena park', 16], ['fullerton', 20], ['anaheim', 23], ['garden grove', 24], ['orange', 28],
-  ['santa ana', 31], ['los angeles', 19], ['downtown los angeles', 19], ['hollywood', 27],
-  ['beverly hills', 30], ['santa monica', 36], ['culver city', 28], ['pasadena', 28], ['glendale', 30],
-  ['burbank', 33], ['van nuys', 39], ['pomona', 39], ['west covina', 28], ['covina', 31],
-  ['ontario', 47], ['rancho cucamonga', 53], ['irvine', 37], ['newport beach', 39], ['laguna beach', 50],
-  ['riverside', 58], ['san bernardino', 69], ['ventura', 82], ['temecula', 86], ['san diego', 116]
-];
+const ADDRESS_API = 'https://ozjctdmdwoutsebkjcpn.supabase.co/functions/v1/demo-address-autocomplete';
+const addressSuggestionsEl = document.getElementById('demoAddressSuggestions');
+let addressSuggestions = [];
+let selectedAddress = null;
+let travelState = {
+  miles: null,
+  fee: 0,
+  label: 'Start typing your house number and street, then choose an address from the suggestions.'
+};
 
 function money(cents) {
   const amount = cents / 100;
@@ -79,7 +78,9 @@ function selectedPackage() {
 }
 
 function guestAdjustment(guests) {
-  return Math.max(0, guests - 50) * 400;
+  // Modest supply/service adjustment: $75 per additional 50 guests, prorated.
+  // Staffing is priced separately so large events are not double-charged.
+  return Math.round(Math.max(0, guests - 50) * 150);
 }
 
 function requiredBartenders(guests) {
@@ -104,26 +105,6 @@ function serviceAreaFee(miles) {
   if (miles <= 125) return 40000;
   if (miles <= 150) return 55000;
   return 55000 + Math.ceil((miles - 150) / 25) * 15000;
-}
-
-function demoTravel(address) {
-  const normalized = String(address || '').trim().toLowerCase();
-  if (!normalized) return { miles: null, fee: 0, recognized: false, label: 'Enter the venue address and the service-area fee will adjust automatically.' };
-
-  const match = demoCities
-    .slice()
-    .sort((a, b) => b[0].length - a[0].length)
-    .find(([city]) => normalized.includes(city));
-
-  const miles = match ? match[1] : 28;
-  const fee = serviceAreaFee(miles);
-  const suffix = match ? '' : ' (demo estimate until exact routing is connected)';
-  return {
-    miles,
-    fee,
-    recognized: Boolean(match),
-    label: 'Estimated driving distance: ' + miles + ' miles · ' + (fee ? money(fee) + ' service-area fee' : 'local travel included') + suffix
-  };
 }
 
 function rushAdjustment(dateValue) {
@@ -163,7 +144,7 @@ function getState() {
   const guests = Math.max(1, Number(guestNumber?.value || 50));
   const hours = Math.max(3, Number(hoursNumber?.value || 5));
   const pkg = selectedPackage();
-  const travel = demoTravel(addressInput?.value);
+  const travel = travelState;
   const included = new Set(includedByPackage[pkg] || []);
   const selected = new Set([...form.querySelectorAll('input[name="options"]:checked')].map(el => el.value));
 
@@ -280,10 +261,130 @@ guestNumber?.addEventListener('input', () => syncGuest(guestNumber));
 hoursSlider?.addEventListener('input', () => syncHours(hoursSlider));
 hoursNumber?.addEventListener('input', () => syncHours(hoursNumber));
 
+function closeAddressSuggestions() {
+  if (!addressSuggestionsEl || !addressInput) return;
+  addressSuggestionsEl.classList.remove('open');
+  addressSuggestionsEl.innerHTML = '';
+  addressInput.setAttribute('aria-expanded', 'false');
+}
+
+function renderAddressSuggestions(items, message = '') {
+  if (!addressSuggestionsEl || !addressInput) return;
+  addressSuggestionsEl.innerHTML = '';
+  if (message) {
+    const row = document.createElement('div');
+    row.className = 'demo-address-message';
+    row.textContent = message;
+    addressSuggestionsEl.appendChild(row);
+    addressSuggestionsEl.classList.add('open');
+    addressInput.setAttribute('aria-expanded', 'true');
+    return;
+  }
+  if (!items.length) {
+    closeAddressSuggestions();
+    return;
+  }
+  items.forEach((item, index) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'demo-address-suggestion';
+    button.setAttribute('role', 'option');
+    button.dataset.index = String(index);
+    const strong = document.createElement('strong');
+    strong.textContent = item.label;
+    const small = document.createElement('small');
+    small.textContent = 'Select this address';
+    button.append(strong, small);
+    button.addEventListener('click', () => chooseAddress(index));
+    addressSuggestionsEl.appendChild(button);
+  });
+  addressSuggestionsEl.classList.add('open');
+  addressInput.setAttribute('aria-expanded', 'true');
+}
+
+async function chooseAddress(index) {
+  const item = addressSuggestions[index];
+  if (!item || !addressInput) return;
+  selectedAddress = item;
+  addressInput.value = item.label;
+  closeAddressSuggestions();
+  travelState = { miles: null, fee: 0, label: 'Calculating driving distance…' };
+  render();
+
+  try {
+    const routeUrl = new URL(ADDRESS_API);
+    routeUrl.searchParams.set('mode', 'route');
+    routeUrl.searchParams.set('lat', String(item.lat));
+    routeUrl.searchParams.set('lon', String(item.lon));
+    const response = await fetch(routeUrl.toString(), { headers: { 'Accept': 'application/json' } });
+    if (!response.ok) throw new Error('route lookup failed');
+    const data = await response.json();
+    const miles = Number(data.miles);
+    if (!Number.isFinite(miles)) throw new Error('invalid route');
+    travelState = {
+      miles,
+      fee: serviceAreaFee(miles),
+      label: 'Driving distance from Bellflower: ' + miles.toFixed(1) + ' miles · ' +
+        (serviceAreaFee(miles) ? money(serviceAreaFee(miles)) + ' service-area fee' : 'local travel included')
+    };
+  } catch {
+    travelState = {
+      miles: null,
+      fee: 0,
+      label: 'Address selected. The demo could not calculate routing right now, so no travel fee is being added.'
+    };
+  }
+  render();
+}
+
 let addressTimer;
+let addressRequestId = 0;
 addressInput?.addEventListener('input', () => {
   clearTimeout(addressTimer);
-  addressTimer = setTimeout(render, 180);
+  selectedAddress = null;
+  travelState = {
+    miles: null,
+    fee: 0,
+    label: 'Choose an address from the suggestions to calculate travel automatically.'
+  };
+  render();
+
+  const q = addressInput.value.trim();
+  if (q.length < 4) {
+    addressSuggestions = [];
+    closeAddressSuggestions();
+    return;
+  }
+
+  const requestId = ++addressRequestId;
+  renderAddressSuggestions([], 'Searching addresses…');
+  addressTimer = setTimeout(async () => {
+    try {
+      const url = new URL(ADDRESS_API);
+      url.searchParams.set('q', q);
+      const response = await fetch(url.toString(), { headers: { 'Accept': 'application/json' } });
+      if (!response.ok) throw new Error('address lookup failed');
+      const data = await response.json();
+      if (requestId !== addressRequestId) return;
+      addressSuggestions = Array.isArray(data.suggestions) ? data.suggestions : [];
+      if (addressSuggestions.length) renderAddressSuggestions(addressSuggestions);
+      else renderAddressSuggestions([], 'No matching street addresses found. Keep typing a more complete address.');
+    } catch {
+      if (requestId !== addressRequestId) return;
+      addressSuggestions = [];
+      renderAddressSuggestions([], 'Address suggestions are temporarily unavailable. Try again in a moment.');
+    }
+  }, 320);
+});
+
+addressInput?.addEventListener('keydown', event => {
+  if (event.key === 'Escape') closeAddressSuggestions();
+});
+
+document.addEventListener('click', event => {
+  if (!addressSuggestionsEl || !addressInput) return;
+  const target = event.target;
+  if (target instanceof Node && !addressSuggestionsEl.contains(target) && target !== addressInput) closeAddressSuggestions();
 });
 dateInput?.addEventListener('input', render);
 
