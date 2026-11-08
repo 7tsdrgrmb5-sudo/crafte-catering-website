@@ -26,6 +26,50 @@
     "sameAs": ["https://www.instagram.com/craftecatering/"]
   }
   </script>
+
+  <style id="live-quote-demo-styles">
+    .demo-live-layout{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(290px,.75fr);gap:28px;align-items:start}
+    .demo-live-form{display:grid;gap:20px}
+    .demo-panel{border:1px solid rgba(255,255,255,.09);border-radius:18px;background:#0e0d0b;padding:22px}
+    .demo-panel h3{margin:0 0 5px;font-family:"Cormorant Garamond",serif;font-size:1.8rem;color:#fff8e9}
+    .demo-panel-copy{margin:0 0 18px;color:#8f887f;font-size:.88rem;line-height:1.55}
+    .demo-fields-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .demo-live-form label{display:grid;gap:8px;color:#b5aea4;font-size:.78rem;letter-spacing:.06em;text-transform:uppercase}
+    .demo-live-form input,.demo-live-form select,.demo-live-form textarea{width:100%;box-sizing:border-box;color:#f7f0e5;background:#080808;border:1px solid rgba(255,255,255,.11);border-radius:12px;padding:14px;outline:none;font:inherit;text-transform:none;letter-spacing:0}
+    .demo-live-form input:focus,.demo-live-form select:focus,.demo-live-form textarea:focus{border-color:rgba(214,168,74,.65);box-shadow:0 0 0 3px rgba(214,168,74,.08)}
+    .demo-slider-head{display:flex;justify-content:space-between;align-items:end;gap:12px;margin-bottom:10px}
+    .demo-slider-value{font-family:"Cormorant Garamond",serif;font-size:2rem;color:#f6df93;white-space:nowrap}
+    .demo-range{padding:0!important;border:0!important;background:transparent!important;accent-color:#d4af37}
+    .demo-range-scale{display:flex;justify-content:space-between;color:#6f6961;font-size:.72rem;margin-top:4px}
+    .demo-inline-adjust{margin-top:10px;color:#aaa39a;font-size:.84rem}
+    .demo-package-grid{display:grid;gap:10px}
+    .demo-package-option{display:flex!important;grid-template-columns:auto 1fr!important;gap:12px!important;align-items:flex-start;padding:15px;border:1px solid rgba(212,175,55,.22);border-radius:14px;background:rgba(255,255,255,.02);cursor:pointer;text-transform:none!important;letter-spacing:0!important}
+    .demo-package-option input{width:auto!important;margin-top:4px;accent-color:#d4af37}
+    .demo-package-option span{display:grid;gap:4px}
+    .demo-package-option strong{color:#f4e0a0;font-size:.98rem}
+    .demo-package-option small{color:#969087;line-height:1.45}
+    .demo-upgrade-list{display:grid;gap:10px}
+    .demo-upgrade{display:flex!important;grid-template-columns:auto 1fr auto!important;gap:10px!important;align-items:center;padding:13px;border:1px solid rgba(255,255,255,.08);border-radius:12px;text-transform:none!important;letter-spacing:0!important}
+    .demo-upgrade input{width:auto!important;accent-color:#d4af37}
+    .demo-upgrade-price{color:#d4af37;font-weight:700;font-size:.84rem}
+    .demo-included{margin-top:14px;padding:13px;border-radius:12px;border:1px solid rgba(212,175,55,.18);background:rgba(212,175,55,.045);color:#bdb5aa;font-size:.84rem;line-height:1.55}
+    .demo-travel-result{margin-top:10px;min-height:24px;color:#c8c0b5;font-size:.86rem}
+    .demo-summary{position:sticky;top:102px;border:1px solid rgba(212,175,55,.32);border-radius:20px;background:linear-gradient(165deg,#161109,#090909 65%);padding:24px;box-shadow:0 20px 55px rgba(0,0,0,.38)}
+    .demo-summary-label{margin:0;color:#8f887f;text-transform:uppercase;letter-spacing:.12em;font-size:.7rem}
+    .demo-total{font-family:"Cormorant Garamond",serif;font-size:4.2rem;line-height:.95;color:#f6df93;margin:5px 0 2px}
+    .demo-retainer{color:#d4af37;font-weight:700;margin:0 0 18px}
+    .demo-breakdown{border-top:1px solid rgba(255,255,255,.08);border-bottom:1px solid rgba(255,255,255,.08);padding:12px 0;margin:14px 0;display:grid;gap:9px}
+    .demo-breakdown-row{display:flex;justify-content:space-between;gap:14px;font-size:.86rem}
+    .demo-breakdown-row span:first-child{color:#948d83}
+    .demo-breakdown-row strong{color:#eee6da;text-align:right}
+    .demo-summary-note{color:#8f887f;font-size:.8rem;line-height:1.5}
+    .demo-live-badge{display:inline-flex;align-items:center;gap:7px;color:#cfc7b9;font-size:.78rem;margin-bottom:10px}
+    .demo-live-dot{width:8px;height:8px;border-radius:50%;background:#d4af37;box-shadow:0 0 0 4px rgba(212,175,55,.1)}
+    .demo-price-flash{animation:demoPriceFlash .28s ease}
+    @keyframes demoPriceFlash{50%{transform:scale(1.025);color:#fff}}
+    @media(max-width:900px){.demo-live-layout{grid-template-columns:1fr}.demo-summary{position:static}.demo-fields-2{grid-template-columns:1fr}}
+    @media(max-width:620px){.demo-panel{padding:18px}.demo-total{font-size:3.5rem}.demo-slider-head{align-items:flex-start;flex-direction:column}.demo-slider-value{font-size:1.8rem}}
+  </style>
 </head>
 <body>\n  <div style="position:fixed;z-index:9999;left:50%;transform:translateX(-50%);top:10px;background:#d4af37;color:#050505;padding:8px 14px;border-radius:999px;font:700 12px Inter,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.35)">CRAFTE QUOTE SYSTEM — PRIVATE DEMO</div>
   <div class="noise" aria-hidden="true"></div>
@@ -340,79 +384,110 @@
       </div>
     </section>
 
+
     <section class="section quote-section" id="quote">
-      <div class="container quote-grid">
-        <div class="quote-copy reveal">
-          <p class="eyebrow">Build Your Quote</p>
-          <h2>Choose your experience. Make it yours.</h2>
-          <p>Select a CraftE package, tell us about your event, and customize the service. We’ll calculate your exact quote automatically — including event size, staffing, service area and your selected upgrades.</p>
-          <div class="instagram-contact-card">
-            <span>No back-and-forth required</span>
-            <strong>Quote → Accept → 30% Retainer → Booked</strong>
-            <small>You can still message @craftecatering anytime if you have questions.</small>
-          </div>
+      <div class="container">
+        <div class="section-heading centered reveal">
+          <p class="eyebrow">Live Quote Builder — Private Demo</p>
+          <h2>Build it. Watch the price change.</h2>
+          <p>Adjust the event details below and the estimate updates instantly. Nothing on this page creates a real lead, booking or payment.</p>
         </div>
 
-        <form class="quote-form reveal delay-1" id="quoteForm">
-          <div class="form-row">
-            <label>First name<input required name="first_name" type="text" autocomplete="given-name" placeholder="First name" /></label>
-            <label>Last name<input name="last_name" type="text" autocomplete="family-name" placeholder="Last name" /></label>
-          </div>
-          <div class="form-row">
-            <label>Email<input required name="email" type="email" autocomplete="email" placeholder="you@example.com" /></label>
-            <label>Phone<input name="phone" type="tel" autocomplete="tel" placeholder="(555) 555-5555" /></label>
-          </div>
-          <div class="form-row">
-            <label>Event date<input required name="event_date" type="date" /></label>
-            <label>Event type<select required name="event_type"><option value="">Select one</option><option>Wedding</option><option>Birthday</option><option>Quinceañera</option><option>Private Party</option><option>Corporate Event</option><option>Mocktail Event</option><option>Other</option></select></label>
-          </div>
-          <label>Venue name <span class="optional">(optional)</span><input name="venue_name" type="text" placeholder="Venue or private residence" /></label>
-          <label>Venue street address<input required name="venue_address" type="text" autocomplete="street-address" placeholder="123 Event St" /></label>
-          <div class="form-row form-row-three">
-            <label>City<input required name="venue_city" type="text" autocomplete="address-level2" placeholder="Anaheim" /></label>
-            <label>State<input required name="venue_state" type="text" value="CA" maxlength="2" /></label>
-            <label>ZIP<input name="venue_zip" type="text" inputmode="numeric" autocomplete="postal-code" placeholder="92801" /></label>
-          </div>
+        <div class="demo-live-layout">
+          <form class="demo-live-form reveal" id="quoteForm">
+            <div class="demo-panel">
+              <h3>1. Event details</h3>
+              <p class="demo-panel-copy">These details can be entered in any order. Pricing updates as soon as a price-related field changes.</p>
+              <div class="demo-fields-2">
+                <label>Event date<input required name="event_date" type="date" /></label>
+                <label>Event type<select required name="event_type"><option value="">Select one</option><option>Wedding</option><option>Birthday</option><option>Quinceañera</option><option>Private Party</option><option>Corporate Event</option><option>Other</option></select></label>
+              </div>
+              <label>Venue address<input required name="venue_address" type="text" autocomplete="street-address" placeholder="Street address, city, CA" /></label>
+              <p class="demo-travel-result" id="demoTravelResult">Enter the venue address and the service-area fee will adjust automatically.</p>
+            </div>
 
-          <div class="form-row">
-            <label>Total guests<input required name="guest_count" type="number" min="1" max="2000" placeholder="e.g. 80" /></label>
-            <label>Drinking guests<input name="drinking_guest_count" type="number" min="0" placeholder="e.g. 65" /></label>
-          </div>
-          <label>Service hours<input required name="service_hours" type="number" min="1" max="24" step="0.5" value="5" /></label>
+            <div class="demo-panel">
+              <h3>2. Size & service time</h3>
+              <p class="demo-panel-copy">The sliders and number fields stay synchronized so mobile and desktop customers can use whichever feels easier.</p>
 
-          <fieldset class="package-picker">
-            <legend>Choose your experience</legend>
-            <label class="package-choice">
-              <input required type="radio" name="package" value="basic" />
-              <span><strong>Basic — from $450</strong><small>Professional bartending essentials. Best when you want CraftE to keep it simple.</small></span>
-            </label>
-            <label class="package-choice">
-              <input required type="radio" name="package" value="deluxe" />
-              <span><strong>Deluxe — from $700</strong><small>Elevated styling, garnishes, signage and presentation included.</small></span>
-            </label>
-            <label class="package-choice">
-              <input required type="radio" name="package" value="premium" />
-              <span><strong>Premium — from $950</strong><small>The fullest CraftE experience, including premium touches and dedicated cocktail service.</small></span>
-            </label>
-          </fieldset>
+              <div class="demo-slider-head">
+                <div>
+                  <label for="guestSlider">Guest count</label>
+                  <p class="demo-panel-copy" style="margin:4px 0 0">First 50 guests are included. Additional guests scale gradually.</p>
+                </div>
+                <div class="demo-slider-value" id="guestDisplay">50 guests</div>
+              </div>
+              <input class="demo-range" id="guestSlider" type="range" min="10" max="300" step="5" value="50" />
+              <div class="demo-range-scale"><span>10</span><span>150</span><span>300</span></div>
+              <label style="margin-top:10px">Exact guest count<input name="guest_count" id="guestNumber" type="number" min="1" max="2000" value="50" /></label>
+              <p class="demo-inline-adjust" id="guestAdjustmentText">Event-size adjustment: Included</p>
 
-          <fieldset id="customizeOptions">
-            <legend>Customize your experience</legend>
-            <p class="field-help">Included upgrades will update automatically when you choose a package. Keep what you want and remove what you don’t.</p>
-            <label class="check"><input type="checkbox" name="options" value="THEMED_STYLING" /> Themed styling & décor <span data-option-price="THEMED_STYLING">+$125</span></label>
-            <label class="check"><input type="checkbox" name="options" value="ELEVATED_GARNISH" /> Elevated garnish package <span data-option-price="ELEVATED_GARNISH">+$100</span></label>
-            <label class="check"><input type="checkbox" name="options" value="COCKTAIL_SIGNAGE" /> Custom cocktail signage <span data-option-price="COCKTAIL_SIGNAGE">+$50</span></label>
-            <label class="check"><input type="checkbox" name="options" value="LED_LIGHTING" /> LED bar lighting <span data-option-price="LED_LIGHTING">+$50</span></label>
-            <label class="check"><input type="checkbox" name="options" value="COCKTAIL_SERVER" /> Dedicated cocktail server <span data-option-price="COCKTAIL_SERVER">+$250</span></label>
-            <label class="check"><input type="checkbox" name="options" value="SHOT_OCLOCK" /> Shot O’Clock experience <span data-option-price="SHOT_OCLOCK">+$100</span></label>
-            <label class="check"><input type="checkbox" name="options" value="MOCKTAIL_STATION" /> Dedicated mocktail station <span data-option-price="MOCKTAIL_STATION">+$100</span></label>
-          </fieldset>
+              <div style="height:18px"></div>
 
-          <label>Anything else?<textarea name="notes" rows="4" placeholder="Theme, signature drinks, venue requirements, accessibility needs, or anything else we should know."></textarea></label>
-          <button class="btn btn-gold full" type="submit" id="quoteSubmit">Calculate My Quote</button>
-          <p class="form-note">Your quote is calculated from your event details and selections. No payment is due until you review and accept it.</p>
-          <p class="quote-status" id="quoteStatus" role="status" aria-live="polite"></p>
-        </form>
+              <div class="demo-slider-head">
+                <div>
+                  <label for="hoursSlider">Bartending service time</label>
+                  <p class="demo-panel-copy" style="margin:4px 0 0">Five hours is the standard package length.</p>
+                </div>
+                <div class="demo-slider-value" id="hoursDisplay">5 hours</div>
+              </div>
+              <input class="demo-range" id="hoursSlider" type="range" min="3" max="8" step=".5" value="5" />
+              <div class="demo-range-scale"><span>3 hrs</span><span>5 hrs</span><span>8 hrs</span></div>
+              <label style="margin-top:10px">Exact service hours<input name="service_hours" id="hoursNumber" type="number" min="3" max="12" step=".5" value="5" /></label>
+              <p class="demo-inline-adjust" id="hoursAdjustmentText">Service-time adjustment: Included</p>
+            </div>
+
+            <div class="demo-panel">
+              <h3>3. Choose your experience</h3>
+              <p class="demo-panel-copy">Package changes update the quote immediately and automatically account for features already included.</p>
+              <div class="demo-package-grid">
+                <label class="demo-package-option"><input required type="radio" name="package" value="basic" checked /><span><strong>Basic — $450</strong><small>Professional bartending, portable bar, bar tools, standard disposables, cocktail signage and a customized menu of up to 5 featured drinks.</small></span></label>
+                <label class="demo-package-option"><input required type="radio" name="package" value="deluxe" /><span><strong>Deluxe — $700</strong><small>Basic plus themed styling, elevated garnish presentation and LED bar lighting.</small></span></label>
+                <label class="demo-package-option"><input required type="radio" name="package" value="premium" /><span><strong>Premium — $950</strong><small>Deluxe plus dedicated cocktail server, Shot O’Clock and up to 3 included bartenders.</small></span></label>
+              </div>
+              <div class="demo-included"><strong>Always included:</strong> cocktail signage and up to 5 featured drinks. Those 5 can later be customized as cocktails, mocktails, or a mix of both at no additional charge.</div>
+            </div>
+
+            <div class="demo-panel">
+              <h3>4. Optional upgrades</h3>
+              <p class="demo-panel-copy">Only features that can actually change the price appear as paid options.</p>
+              <div class="demo-upgrade-list" id="demoUpgradeList">
+                <label class="demo-upgrade" data-code="THEMED_STYLING"><input type="checkbox" name="options" value="THEMED_STYLING" /><span>Themed styling & décor</span><span class="demo-upgrade-price" data-option-price="THEMED_STYLING">+$125</span></label>
+                <label class="demo-upgrade" data-code="ELEVATED_GARNISH"><input type="checkbox" name="options" value="ELEVATED_GARNISH" /><span>Elevated garnish presentation</span><span class="demo-upgrade-price" data-option-price="ELEVATED_GARNISH">+$100</span></label>
+                <label class="demo-upgrade" data-code="LED_LIGHTING"><input type="checkbox" name="options" value="LED_LIGHTING" /><span>LED bar lighting</span><span class="demo-upgrade-price" data-option-price="LED_LIGHTING">+$50</span></label>
+                <label class="demo-upgrade" data-code="COCKTAIL_SERVER"><input type="checkbox" name="options" value="COCKTAIL_SERVER" /><span>Dedicated cocktail server</span><span class="demo-upgrade-price" data-option-price="COCKTAIL_SERVER">+$250</span></label>
+                <label class="demo-upgrade" data-code="SHOT_OCLOCK"><input type="checkbox" name="options" value="SHOT_OCLOCK" /><span>Shot O’Clock experience</span><span class="demo-upgrade-price" data-option-price="SHOT_OCLOCK">+$100</span></label>
+              </div>
+            </div>
+
+            <div class="demo-panel">
+              <h3>5. Contact & final notes</h3>
+              <p class="demo-panel-copy">These fields do not affect the price. In the real flow they identify the client before the quote is saved.</p>
+              <div class="demo-fields-2">
+                <label>First name<input required name="first_name" type="text" autocomplete="given-name" placeholder="First name" /></label>
+                <label>Last name<input name="last_name" type="text" autocomplete="family-name" placeholder="Last name" /></label>
+              </div>
+              <div class="demo-fields-2">
+                <label>Email<input required name="email" type="email" autocomplete="email" placeholder="you@example.com" /></label>
+                <label>Phone<input name="phone" type="tel" autocomplete="tel" placeholder="(555) 555-5555" /></label>
+              </div>
+              <label>Anything else?<textarea name="notes" rows="3" placeholder="Theme, signature drinks, venue details, or anything else we should know."></textarea></label>
+            </div>
+
+            <button class="btn btn-gold full" type="submit" id="quoteSubmit">Continue With This Quote</button>
+            <p class="form-note">Private demo only. The real website has not been changed.</p>
+            <p class="quote-status" id="quoteStatus" role="status" aria-live="polite"></p>
+          </form>
+
+          <aside class="demo-summary reveal delay-1" aria-live="polite">
+            <div class="demo-live-badge"><span class="demo-live-dot"></span>LIVE ESTIMATE</div>
+            <p class="demo-summary-label">Estimated total</p>
+            <div class="demo-total" id="liveQuoteTotal">$450</div>
+            <p class="demo-retainer" id="liveRetainer">30% retainer: $135.00</p>
+            <div class="demo-breakdown" id="liveBreakdown"></div>
+            <p class="demo-summary-note">The live production version would still verify the price securely on the server before allowing payment. What the customer sees here is the instant estimate.</p>
+          </aside>
+        </div>
       </div>
     </section>
   </main>
@@ -445,6 +520,6 @@
   <script src="language.js?v=2"></script>
   <script src="demo-analytics.js?v=1"></script>
   <script src="demo-contact-capture.js?v=3"></script>
-  <script src="quote-builder.js?v=4"></script>
+  <script src="quote-builder.js?v=5"></script>
 </body>
 </html>
