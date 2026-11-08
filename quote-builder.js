@@ -32,12 +32,9 @@ const totalEl = document.getElementById('liveQuoteTotal');
 const retainerEl = document.getElementById('liveRetainer');
 const breakdownEl = document.getElementById('liveBreakdown');
 const travelResultEl = document.getElementById('demoTravelResult');
-const guestSlider = document.getElementById('guestSlider');
 const guestNumber = document.getElementById('guestNumber');
-const guestDisplay = document.getElementById('guestDisplay');
 const guestAdjustmentText = document.getElementById('guestAdjustmentText');
 const hoursSlider = document.getElementById('hoursSlider');
-const hoursNumber = document.getElementById('hoursNumber');
 const hoursDisplay = document.getElementById('hoursDisplay');
 const hoursAdjustmentText = document.getElementById('hoursAdjustmentText');
 const addressInput = form?.querySelector('[name="venue_address"]');
@@ -48,14 +45,14 @@ const includedBartenders = { basic: 2, deluxe: 2, premium: 3 };
 const includedByPackage = {
   basic: [],
   deluxe: ['THEMED_STYLING', 'ELEVATED_GARNISH', 'LED_LIGHTING', 'SHOT_OCLOCK'],
-  premium: ['THEMED_STYLING', 'ELEVATED_GARNISH', 'LED_LIGHTING', 'COCKTAIL_SERVER', 'SHOT_OCLOCK']
+  premium: ['THEMED_STYLING', 'ELEVATED_GARNISH', 'LED_LIGHTING', 'SHOT_OCLOCK', 'COCKTAIL_SERVER']
 };
 const optionPrices = {
   THEMED_STYLING: { name: 'Themed styling & décor', add: 12500 },
   ELEVATED_GARNISH: { name: 'Elevated garnish presentation', add: 10000 },
   LED_LIGHTING: { name: 'LED bar lighting', add: 5000 },
-  COCKTAIL_SERVER: { name: 'Dedicated cocktail server', add: 25000 },
-  SHOT_OCLOCK: { name: "Shot O'Clock experience", add: 10000 }
+  SHOT_OCLOCK: { name: "Shot O'Clock", add: 10000 },
+  COCKTAIL_SERVER: { name: 'Dedicated cocktail server', add: 25000 }
 };
 
 const ADDRESS_API = 'https://ozjctdmdwoutsebkjcpn.supabase.co/functions/v1/demo-address-autocomplete';
@@ -70,17 +67,15 @@ let travelState = {
 
 function money(cents) {
   const amount = cents / 100;
-  return amount.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: amount % 1 ? 2 : 0 });
+  return amount.toLocaleString('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: Number.isInteger(amount) ? 0 : 2
+  });
 }
 
 function selectedPackage() {
   return form?.querySelector('input[name="package"]:checked')?.value || 'basic';
-}
-
-function guestAdjustment(guests) {
-  // Modest supply/service adjustment: $75 per additional 50 guests, prorated.
-  // Staffing is priced separately so large events are not double-charged.
-  return Math.round(Math.max(0, guests - 50) * 150);
 }
 
 function requiredBartenders(guests) {
@@ -91,7 +86,7 @@ function requiredBartenders(guests) {
 }
 
 function serviceHoursAdjustment(hours) {
-  if (hours < 5) return Math.round((hours - 5) * 5000);
+  if (hours < 5) return Math.round((hours - 5) * 2500);
   if (hours > 5) return Math.round((hours - 5) * 7500);
   return 0;
 }
@@ -126,15 +121,14 @@ function syncPackageOptions() {
     const input = row.querySelector('input');
     const price = row.querySelector('[data-option-price]');
     if (!input) return;
+
     if (included.has(code)) {
-      input.checked = true;
+      input.checked = false;
       input.disabled = true;
-      row.style.opacity = '0.72';
-      if (price) price.textContent = 'Included';
+      row.hidden = true;
     } else {
-      if (input.disabled) input.checked = false;
       input.disabled = false;
-      row.style.opacity = '1';
+      row.hidden = false;
       if (price) price.textContent = optionPrices[code] ? '+' + money(optionPrices[code].add) : '';
     }
   });
@@ -142,7 +136,7 @@ function syncPackageOptions() {
 
 function getState() {
   const guests = Math.max(1, Number(guestNumber?.value || 50));
-  const hours = Math.max(3, Number(hoursNumber?.value || 5));
+  const hours = Math.max(3, Math.min(8, Number(hoursSlider?.value || 5)));
   const pkg = selectedPackage();
   const travel = travelState;
   const included = new Set(includedByPackage[pkg] || []);
@@ -150,26 +144,26 @@ function getState() {
 
   const items = [];
   let total = packageBase[pkg] || 0;
-  items.push({ description: pkg[0].toUpperCase() + pkg.slice(1) + ' Package', amount: total });
-
-  const guestFee = guestAdjustment(guests);
-  if (guestFee) {
-    total += guestFee;
-    items.push({ description: 'Event Size Adjustment', amount: guestFee });
-  }
+  items.push({ description: pkg[0].toUpperCase() + pkg.slice(1) + ' Package', amount: total, kind: 'base' });
 
   const hourFee = serviceHoursAdjustment(hours);
   if (hourFee) {
     total += hourFee;
-    items.push({ description: hours < 5 ? 'Shorter Service Adjustment' : 'Additional Service Time', amount: hourFee });
+    items.push({
+      description: hours < 5 ? hours + '-Hour Service' : hours + '-Hour Service',
+      amount: hourFee
+    });
   }
 
-  const reqBartenders = requiredBartenders(guests);
-  const extraBartenders = Math.max(0, reqBartenders - includedBartenders[pkg]);
+  const required = requiredBartenders(guests);
+  const extraBartenders = Math.max(0, required - includedBartenders[pkg]);
   if (extraBartenders) {
-    const staffing = extraBartenders * 25000;
-    total += staffing;
-    items.push({ description: 'Additional Bartender' + (extraBartenders > 1 ? 's' : '') + ' × ' + extraBartenders, amount: staffing });
+    const staffingFee = extraBartenders * 25000;
+    total += staffingFee;
+    items.push({
+      description: 'Extra Bartender' + (extraBartenders > 1 ? 's' : '') + ' × ' + extraBartenders,
+      amount: staffingFee
+    });
   }
 
   Object.entries(optionPrices).forEach(([code, option]) => {
@@ -179,7 +173,7 @@ function getState() {
     }
   });
 
-  if (travel.miles !== null) {
+  if (travel.miles !== null && travel.fee > 0) {
     total += travel.fee;
     items.push({ description: 'Extended Service Area', amount: travel.fee });
   }
@@ -196,8 +190,8 @@ function getState() {
     hours,
     pkg,
     travel,
-    requiredBartenders: reqBartenders,
-    guestFee,
+    requiredBartenders: required,
+    extraBartenders,
     hourFee,
     rushFee,
     items,
@@ -210,56 +204,64 @@ function render() {
   if (!form || !totalEl || !retainerEl || !breakdownEl) return;
   const state = getState();
 
-  if (guestDisplay) guestDisplay.textContent = state.guests.toLocaleString('en-US') + ' guests';
-  if (guestAdjustmentText) {
-    guestAdjustmentText.textContent = 'Event-size adjustment: ' + (state.guestFee ? '+' + money(state.guestFee) : 'Included') +
-      ' · ' + state.requiredBartenders + (state.requiredBartenders === 1 ? ' bartender required' : ' bartenders required');
-  }
-  if (hoursDisplay) hoursDisplay.textContent = Number(state.hours).toFixed(state.hours % 1 ? 1 : 0) + ' hours';
+  if (hoursDisplay) hoursDisplay.textContent = state.hours + ' hours';
   if (hoursAdjustmentText) {
-    hoursAdjustmentText.textContent = 'Service-time adjustment: ' +
-      (state.hourFee === 0 ? 'Included' : (state.hourFee > 0 ? '+' + money(state.hourFee) : '−' + money(Math.abs(state.hourFee))));
+    if (state.hourFee === 0) {
+      hoursAdjustmentText.textContent = '5-hour service included';
+    } else if (state.hourFee < 0) {
+      hoursAdjustmentText.textContent = 'Shorter event: ' + money(Math.abs(state.hourFee)) + ' less';
+    } else {
+      hoursAdjustmentText.textContent = 'Additional service time: +' + money(state.hourFee);
+    }
   }
+
+  if (guestAdjustmentText) {
+    if (state.extraBartenders === 0) {
+      guestAdjustmentText.textContent =
+        state.requiredBartenders + (state.requiredBartenders === 1 ? ' bartender is' : ' bartenders are') +
+        ' recommended for this event — already included in your package. No guest-count fee.';
+    } else {
+      guestAdjustmentText.textContent =
+        state.requiredBartenders + ' bartenders are recommended. Your package includes ' +
+        includedBartenders[state.pkg] + ', so ' + state.extraBartenders +
+        ' additional bartender' + (state.extraBartenders > 1 ? 's are' : ' is') + ' added to the quote.';
+    }
+  }
+
   if (travelResultEl) travelResultEl.textContent = state.travel.label;
 
   totalEl.textContent = money(state.total);
-  retainerEl.textContent = '30% retainer: ' + money(state.retainer);
+  retainerEl.textContent = 'Reserve today: ' + money(state.retainer);
   totalEl.classList.remove('demo-price-flash');
   void totalEl.offsetWidth;
   totalEl.classList.add('demo-price-flash');
 
   const rows = state.items.map(item => {
-    const amount = item.amount === 0 ? 'Included' : (item.amount < 0 ? '−' + money(Math.abs(item.amount)) : '+' + money(item.amount));
-    const displayAmount = item.description.endsWith('Package') ? money(item.amount) : amount;
+    const displayAmount = item.kind === 'base'
+      ? money(item.amount)
+      : (item.amount < 0 ? '−' + money(Math.abs(item.amount)) : '+' + money(item.amount));
     return '<div class="demo-breakdown-row"><span>' + item.description + '</span><strong>' + displayAmount + '</strong></div>';
   });
+
+  if (state.travel.miles !== null && state.travel.fee === 0) {
+    rows.push('<div class="demo-breakdown-row"><span>Travel</span><strong>Included</strong></div>');
+  }
+  rows.push('<div class="demo-breakdown-row"><span>Guest count</span><strong>No per-person fee</strong></div>');
+
   breakdownEl.innerHTML = rows.join('');
 }
 
-function syncGuest(source) {
-  let value = Math.max(1, Math.min(2000, Number(source.value) || 50));
-  if (source === guestSlider) {
-    guestNumber.value = String(value);
-  } else if (guestSlider) {
-    guestSlider.value = String(Math.max(Number(guestSlider.min), Math.min(Number(guestSlider.max), value)));
-  }
-  render();
-}
+hoursSlider?.addEventListener('input', render);
+guestNumber?.addEventListener('input', render);
+dateInput?.addEventListener('input', render);
 
-function syncHours(source) {
-  let value = Math.max(3, Math.min(12, Number(source.value) || 5));
-  if (source === hoursSlider) {
-    hoursNumber.value = String(value);
-  } else if (hoursSlider) {
-    hoursSlider.value = String(Math.max(Number(hoursSlider.min), Math.min(Number(hoursSlider.max), value)));
-  }
-  render();
-}
-
-guestSlider?.addEventListener('input', () => syncGuest(guestSlider));
-guestNumber?.addEventListener('input', () => syncGuest(guestNumber));
-hoursSlider?.addEventListener('input', () => syncHours(hoursSlider));
-hoursNumber?.addEventListener('input', () => syncHours(hoursNumber));
+form?.querySelectorAll('input[name="package"]').forEach(input => {
+  input.addEventListener('change', () => {
+    syncPackageOptions();
+    render();
+  });
+});
+form?.querySelectorAll('input[name="options"]').forEach(input => input.addEventListener('change', render));
 
 function closeAddressSuggestions() {
   if (!addressSuggestionsEl || !addressInput) return;
@@ -271,6 +273,7 @@ function closeAddressSuggestions() {
 function renderAddressSuggestions(items, message = '') {
   if (!addressSuggestionsEl || !addressInput) return;
   addressSuggestionsEl.innerHTML = '';
+
   if (message) {
     const row = document.createElement('div');
     row.className = 'demo-address-message';
@@ -280,24 +283,28 @@ function renderAddressSuggestions(items, message = '') {
     addressInput.setAttribute('aria-expanded', 'true');
     return;
   }
+
   if (!items.length) {
     closeAddressSuggestions();
     return;
   }
+
   items.forEach((item, index) => {
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'demo-address-suggestion';
     button.setAttribute('role', 'option');
-    button.dataset.index = String(index);
+
     const strong = document.createElement('strong');
     strong.textContent = item.label;
     const small = document.createElement('small');
     small.textContent = 'Select this address';
+
     button.append(strong, small);
     button.addEventListener('click', () => chooseAddress(index));
     addressSuggestionsEl.appendChild(button);
   });
+
   addressSuggestionsEl.classList.add('open');
   addressInput.setAttribute('aria-expanded', 'true');
 }
@@ -305,10 +312,12 @@ function renderAddressSuggestions(items, message = '') {
 async function chooseAddress(index) {
   const item = addressSuggestions[index];
   if (!item || !addressInput) return;
+
   selectedAddress = item;
   addressInput.value = item.label;
   closeAddressSuggestions();
-  travelState = { miles: null, fee: 0, label: 'Calculating driving distance…' };
+
+  travelState = { miles: null, fee: 0, label: 'Calculating travel…' };
   render();
 
   try {
@@ -316,36 +325,41 @@ async function chooseAddress(index) {
     routeUrl.searchParams.set('mode', 'route');
     routeUrl.searchParams.set('lat', String(item.lat));
     routeUrl.searchParams.set('lon', String(item.lon));
-    const response = await fetch(routeUrl.toString(), { headers: { 'Accept': 'application/json' } });
+
+    const response = await fetch(routeUrl.toString(), { headers: { Accept: 'application/json' } });
     if (!response.ok) throw new Error('route lookup failed');
+
     const data = await response.json();
     const miles = Number(data.miles);
     if (!Number.isFinite(miles)) throw new Error('invalid route');
+
+    const fee = serviceAreaFee(miles);
     travelState = {
       miles,
-      fee: serviceAreaFee(miles),
-      label: 'Driving distance from Bellflower: ' + miles.toFixed(1) + ' miles · ' +
-        (serviceAreaFee(miles) ? money(serviceAreaFee(miles)) + ' service-area fee' : 'local travel included')
+      fee,
+      label: fee ? 'Extended service area: +' + money(fee) : 'Travel included with your event.'
     };
   } catch {
     travelState = {
       miles: null,
       fee: 0,
-      label: 'Address selected. The demo could not calculate routing right now, so no travel fee is being added.'
+      label: 'Address selected. Travel could not be calculated right now, so no demo travel fee is being added.'
     };
   }
+
   render();
 }
 
 let addressTimer;
 let addressRequestId = 0;
+
 addressInput?.addEventListener('input', () => {
   clearTimeout(addressTimer);
   selectedAddress = null;
   travelState = {
     miles: null,
     fee: 0,
-    label: 'Choose an address from the suggestions to calculate travel automatically.'
+    label: 'Choose an address from the suggestions and travel will update automatically.'
   };
   render();
 
@@ -358,17 +372,21 @@ addressInput?.addEventListener('input', () => {
 
   const requestId = ++addressRequestId;
   renderAddressSuggestions([], 'Searching addresses…');
+
   addressTimer = setTimeout(async () => {
     try {
       const url = new URL(ADDRESS_API);
       url.searchParams.set('q', q);
-      const response = await fetch(url.toString(), { headers: { 'Accept': 'application/json' } });
+
+      const response = await fetch(url.toString(), { headers: { Accept: 'application/json' } });
       if (!response.ok) throw new Error('address lookup failed');
+
       const data = await response.json();
       if (requestId !== addressRequestId) return;
+
       addressSuggestions = Array.isArray(data.suggestions) ? data.suggestions : [];
       if (addressSuggestions.length) renderAddressSuggestions(addressSuggestions);
-      else renderAddressSuggestions([], 'No matching street addresses found. Keep typing a more complete address.');
+      else renderAddressSuggestions([], 'No matching addresses yet. Keep typing the house number and street.');
     } catch {
       if (requestId !== addressRequestId) return;
       addressSuggestions = [];
@@ -384,20 +402,14 @@ addressInput?.addEventListener('keydown', event => {
 document.addEventListener('click', event => {
   if (!addressSuggestionsEl || !addressInput) return;
   const target = event.target;
-  if (target instanceof Node && !addressSuggestionsEl.contains(target) && target !== addressInput) closeAddressSuggestions();
+  if (target instanceof Node && !addressSuggestionsEl.contains(target) && target !== addressInput) {
+    closeAddressSuggestions();
+  }
 });
-dateInput?.addEventListener('input', render);
-
-form?.querySelectorAll('input[name="package"]').forEach(input => {
-  input.addEventListener('change', () => {
-    syncPackageOptions();
-    render();
-  });
-});
-form?.querySelectorAll('input[name="options"]').forEach(input => input.addEventListener('change', render));
 
 form?.addEventListener('submit', event => {
   event.preventDefault();
+
   const state = getState();
   const data = new FormData(form);
   const payload = Object.fromEntries(data.entries());
@@ -439,6 +451,4 @@ if (dateInput) {
 syncPackageOptions();
 render();
 
-window.addEventListener('crafte-language-change', () => {
-  render();
-});
+window.addEventListener('crafte-language-change', render);
