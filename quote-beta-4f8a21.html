@@ -83,6 +83,13 @@
     .demo-upgrades-inner{padding:0 22px 22px}
     .demo-simple-checks{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
     .demo-simple-checks span{border:1px solid rgba(212,175,55,.18);border-radius:999px;padding:7px 10px;color:#a9a196;font-size:.75rem}
+    .demo-alcohol-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+    .demo-alcohol-option{display:flex!important;grid-template-columns:auto 1fr!important;gap:10px!important;align-items:flex-start;padding:14px;border:1px solid rgba(255,255,255,.09);border-radius:13px;background:#090909;cursor:pointer;text-transform:none!important;letter-spacing:0!important}
+    .demo-alcohol-option input{width:auto!important;margin-top:4px;accent-color:#d4af37}
+    .demo-alcohol-option strong{display:block;color:#f4e0a0;font-size:.9rem}
+    .demo-alcohol-option small{display:block;margin-top:3px;color:#8f887f;line-height:1.4}
+    .demo-alcohol-warning{margin-top:10px;padding:12px 13px;border-radius:12px;border:1px solid rgba(212,175,55,.22);background:rgba(212,175,55,.05);color:#c6beb3;font-size:.82rem;line-height:1.5}
+    @media(max-width:620px){.demo-alcohol-grid{grid-template-columns:1fr}}
     @keyframes demoPriceFlash{50%{transform:scale(1.025);color:#fff}}
     @media(max-width:900px){.demo-live-layout{grid-template-columns:1fr}.demo-summary{position:static}.demo-fields-2{grid-template-columns:1fr}}
     @media(max-width:620px){.demo-panel{padding:18px}.demo-total{font-size:3.5rem}.demo-slider-head{align-items:flex-start;flex-direction:column}.demo-slider-value{font-size:1.8rem}}
@@ -469,7 +476,7 @@
                 </div>
                 <div class="demo-slider-value" id="hoursDisplay">5 hours</div>
               </div>
-              <input class="demo-range" id="hoursSlider" type="range" min="3" max="8" step="1" value="5" />
+              <input class="demo-range" id="hoursSlider" type="range" min="3" max="8" step=".5" value="5" />
               <div class="demo-range-scale"><span>3 hrs</span><span>5 hrs</span><span>8 hrs</span></div>
               <p class="demo-inline-adjust" id="hoursAdjustmentText">5-hour service included</p>
 
@@ -479,6 +486,22 @@
                 <input name="guest_count" id="guestNumber" type="number" min="1" max="2000" value="50" inputmode="numeric" />
               </label>
               <div class="demo-staff-status" id="guestAdjustmentText">Your event is covered by the bartenders already included in this package.</div>
+
+              <div style="height:18px"></div>
+              <div>
+                <label>Who provides the alcohol?</label>
+                <div class="demo-alcohol-grid">
+                  <label class="demo-alcohol-option">
+                    <input type="radio" name="alcohol_provider" value="client" checked />
+                    <span><strong>I’ll provide the alcohol</strong><small>No alcohol charge from CraftE. We provide the shopping guidance after booking.</small></span>
+                  </label>
+                  <label class="demo-alcohol-option">
+                    <input type="radio" name="alcohol_provider" value="crafte" />
+                    <span><strong>CraftE provides the alcohol</strong><small>Future licensed option — demo preview only. Estimate updates automatically from guest count.</small></span>
+                  </label>
+                </div>
+                <div class="demo-alcohol-warning" id="alcoholEstimateNote">Client-supplied alcohol selected.</div>
+              </div>
             </div>
 
             <div class="demo-panel">
@@ -535,7 +558,7 @@
             <p class="demo-retainer" id="liveRetainer">Reserve today: $135</p>
             <div class="demo-breakdown" id="liveBreakdown"></div>
             <div class="demo-simple-checks">
-              <span>No per-person fee</span>
+              <span>No per-person service fee</span>
               <span>5-drink menu included</span>
               <span>30% to reserve</span>
             </div>
@@ -574,6 +597,6 @@
   <script src="language.js?v=2"></script>
   <script src="demo-analytics.js?v=1"></script>
   <script src="demo-contact-capture.js?v=3"></script>
-  <script src="quote-builder.js?v=7"></script>
+  <script src="quote-builder.js?v=8"></script>
 </body>
 </html>
