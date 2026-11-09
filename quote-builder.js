@@ -37,6 +37,7 @@ const guestAdjustmentText = document.getElementById('guestAdjustmentText');
 const hoursSlider = document.getElementById('hoursSlider');
 const hoursDisplay = document.getElementById('hoursDisplay');
 const hoursAdjustmentText = document.getElementById('hoursAdjustmentText');
+const alcoholEstimateNote = document.getElementById('alcoholEstimateNote');
 const addressInput = form?.querySelector('[name="venue_address"]');
 const dateInput = form?.querySelector('[name="event_date"]');
 
@@ -86,9 +87,19 @@ function requiredBartenders(guests) {
 }
 
 function serviceHoursAdjustment(hours) {
-  if (hours < 5) return Math.round((hours - 5) * 2500);
-  if (hours > 5) return Math.round((hours - 5) * 7500);
-  return 0;
+  const raw = hours < 5
+    ? (hours - 5) * 2500
+    : hours > 5
+      ? (hours - 5) * 7500
+      : 0;
+  if (!raw) return 0;
+  return Math.sign(raw) * Math.round(Math.abs(raw) / 500) * 500;
+}
+
+function alcoholEstimate(guests) {
+  // Private design-preview placeholder only: about $12 per guest, rounded up to $25.
+  // Final licensed pricing should be rebuilt from actual bottle costs, taxes, ABC costs and selected brands.
+  return Math.max(25000, Math.ceil((guests * 1200) / 2500) * 2500);
 }
 
 function serviceAreaFee(miles) {
@@ -139,6 +150,7 @@ function getState() {
   const hours = Math.max(3, Math.min(8, Number(hoursSlider?.value || 5)));
   const pkg = selectedPackage();
   const travel = travelState;
+  const alcoholProvider = form?.querySelector('input[name="alcohol_provider"]:checked')?.value || 'client';
   const included = new Set(includedByPackage[pkg] || []);
   const selected = new Set([...form.querySelectorAll('input[name="options"]:checked')].map(el => el.value));
 
@@ -173,6 +185,12 @@ function getState() {
     }
   });
 
+  const alcoholCost = alcoholProvider === 'crafte' ? alcoholEstimate(guests) : 0;
+  if (alcoholCost) {
+    total += alcoholCost;
+    items.push({ description: 'CraftE-Provided Alcohol · Demo Estimate', amount: alcoholCost });
+  }
+
   if (travel.miles !== null && travel.fee > 0) {
     total += travel.fee;
     items.push({ description: 'Extended Service Area', amount: travel.fee });
@@ -190,6 +208,8 @@ function getState() {
     hours,
     pkg,
     travel,
+    alcoholProvider,
+    alcoholCost,
     requiredBartenders: required,
     extraBartenders,
     hourFee,
@@ -204,7 +224,7 @@ function render() {
   if (!form || !totalEl || !retainerEl || !breakdownEl) return;
   const state = getState();
 
-  if (hoursDisplay) hoursDisplay.textContent = state.hours + ' hours';
+  if (hoursDisplay) hoursDisplay.textContent = Number(state.hours).toFixed(state.hours % 1 ? 1 : 0) + ' hours';
   if (hoursAdjustmentText) {
     if (state.hourFee === 0) {
       hoursAdjustmentText.textContent = '5-hour service included';
@@ -230,6 +250,12 @@ function render() {
 
   if (travelResultEl) travelResultEl.textContent = state.travel.label;
 
+  if (alcoholEstimateNote) {
+    alcoholEstimateNote.textContent = state.alcoholProvider === 'crafte'
+      ? 'Future licensed-option preview: approximately ' + money(state.alcoholCost) + ' for ' + state.guests + ' guests. This is a planning estimate only and is not currently bookable.'
+      : 'Client-supplied alcohol selected. CraftE would provide the shopping guidance after booking.';
+  }
+
   totalEl.textContent = money(state.total);
   retainerEl.textContent = 'Reserve today: ' + money(state.retainer);
   totalEl.classList.remove('demo-price-flash');
@@ -254,6 +280,7 @@ function render() {
 hoursSlider?.addEventListener('input', render);
 guestNumber?.addEventListener('input', render);
 dateInput?.addEventListener('input', render);
+form?.querySelectorAll('input[name="alcohol_provider"]').forEach(input => input.addEventListener('change', render));
 
 form?.querySelectorAll('input[name="package"]').forEach(input => {
   input.addEventListener('change', () => {
